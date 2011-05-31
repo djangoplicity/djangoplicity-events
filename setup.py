@@ -45,17 +45,12 @@ setup(
 	include_package_data = True,
 	zip_safe = False,
 	namespace_packages = ['djangoplicity'],
-	entry_points = {
-		'console_scripts': [
-				'somescriptname = djangoplicity.events.script:main',
-			],		
-		},
 	
 	# metadata for upload to PyPI
 	author = 'European Southern Observatory',
 	author_email = 'information@eso.org',
-	description = 'Djangoplicity application for ...',
+	description = 'Djangoplicity application for managing events and meetings',
 	license = "New BSD License",
-	keywords = "django djangoplicity ",
-	url = "http://www.djangoplicity.org"
+	keywords = "django djangoplicity events meetings calendar",
+	url = "http://www.djangoplicity.org/app/events/"
 )

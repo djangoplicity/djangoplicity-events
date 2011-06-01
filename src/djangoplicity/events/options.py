@@ -56,7 +56,6 @@ class EventOptions( ArchiveOptions ):
 		site = SiteQuery( browsers = ( 'html', 'json', 'ical' ), verbose_name = "Seminars and Colloquia" )
 		
 	class Browsers(object):
-		html = ListBrowser()
+		html = ListBrowser( verbose_name='HTML' )
 		json = SerializationBrowser( serializer=EventSerializer, emitter=JSONEmitter, paginate_by=100, display=False, verbose_name=_( "JSON" ) )
-		ical = SerializationBrowser( serializer=ICalEventSerializer, emitter=ICalEmitter, paginate_by=100, display=True, verbose_name=_( "iCal" ) ) 
-		
+		ical = SerializationBrowser( serializer=ICalEventSerializer, emitter=ICalEmitter, paginate_by=100, display=True, verbose_name=_( "iCal" ) ) 		

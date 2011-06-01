@@ -31,30 +31,8 @@
 #
 
 from datetime import datetime 
-from djangoplicity.archives.contrib.queries import AllPublicQuery
+from djangoplicity.archives.contrib.queries import ForeignKeyQuery 
 from django.http import Http404
-
-
-class ForeignKeyQuery( AllPublicQuery ):
-	def __init__( self, fk_field, *args, **kwargs ):
-		self.fk_field = fk_field
-		super( ForeignKeyQuery, self ).__init__( *args, **kwargs )
-	
-	def queryset( self, model, options, request, stringparam=None, **kwargs ):
-		if not stringparam:
-			raise Http404
-		
-		( qs , query_data ) = super( ForeignKeyQuery, self ).queryset( model, options, request, **kwargs )
-		qs = qs.filter( **{ self.fk_field : stringparam } )
-		
-		return ( qs , query_data )
-	
-	def url_args(self, model, options, request, stringparam=None, **kwargs ):
-		"""
-		Hook for query to specify extra reverse URL lookup arguments.
-		"""
-		return [ stringparam ]
-	
 
 class SiteQuery( ForeignKeyQuery ):
 	def __init__( self, *args, **kwargs ):

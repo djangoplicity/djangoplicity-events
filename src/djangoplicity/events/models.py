@@ -82,12 +82,13 @@ class Event( archives.ArchiveModel, models.Model ):
 	end_date = models.DateTimeField( blank=True, null=True, )
 	location = models.ForeignKey( EventLocation, blank=True, null=True )
 	series = models.ForeignKey( EventSeries, blank=True, null=True )
-	type = models.CharField( max_length=1, db_index=True, choices=EVENT_TYPES, default='M' )
+	type = models.CharField( max_length=1, db_index=True, choices=EVENT_TYPES, default='M', help_text="The event and meeting type is used to control where the event is displayed on the website." )
 	title = models.CharField( max_length=255 )
 	speaker = models.CharField( max_length=255, blank=True )
-	affiliation = models.CharField( max_length=255, blank=True )
+	affiliation = models.CharField( max_length=255, blank=True, help_text="Affiliation of the speaker - please keep short if possible." )
 	abstract = models.TextField( blank=True )
-	image = models.ForeignKey( Image, blank=True, null=True )
+	image = models.ForeignKey( Image, blank=True, null=True, help_text="Image id of image to display together with this event." )
+	video_url = models.URLField( blank=True, null=True, verify_exists=False, max_length=255, help_text="Link to flash video (.flv) of this event if exists." )
 
 	def __unicode__( self ):
 		return "%s: %s (%s, %s)" % ( self.get_type_display(), self.title, self.location, self.start_date )
@@ -117,8 +118,15 @@ class EventSerializer( SimpleSerializer ):
 		'start_date', 
 		'end_date', 
 		'location',
+		'video_url',
 	)
 	
 	def get_type_value( self, obj ):
 		return obj.get_type_display()
+	
+	def get_image_value( self, obj ):
+		if obj.image and obj.image.resource_screen:
+			return obj.image.resource_screen.url
+		else:
+			return ""
 	

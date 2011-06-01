@@ -65,7 +65,7 @@ class EventAdmin( admin.ModelAdmin ):
 	list_filter = ( 'last_modified', 'published', 'type', 'location', 'location__site' )
 	search_fields = ( 'title', 'speaker', 'location__name', 'series__name', 'type', 'affiliation', 'abstract', )
 	fieldsets = (
-		( 'Event or meeting', { 'fields': ( 'type', 'series', 'title', 'speaker', 'affiliation', 'abstract', 'image' ) } ),
+		( 'Event or meeting', { 'fields': ( 'type', 'series', 'title', 'speaker', 'affiliation', 'abstract', 'image', 'video_url' ) } ),
 		( 'Locaiton and date', { 'fields': ( 'start_date', 'end_date', 'location', ) } ),
 		( 'Publishing', {'fields': ( 'published', 'last_modified', 'created' ), } ),
 	)

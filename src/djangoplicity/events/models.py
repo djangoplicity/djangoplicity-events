@@ -42,16 +42,22 @@ from djangoplicity.archives.contrib.serialization import Serializer, \
 	Serialization, SimpleSerializer
 from djangoplicity.media.models import Image
 import os
+from pytz import all_timezones
+from djangoplicity.utils.datetimes import timezone
+from django.conf import settings
 
 EVENT_TYPES = ( 
 	( 'E', 'Event' ),
 	( 'M', 'Meeting' ),
  )
 
+EVENTSITE_TZS = [( tz, tz ) for tz in all_timezones]
+
 class EventSite( models.Model ):
 	""" Defines a given site - e.g. Garching, Santiago or Paranal"""
 	name = models.CharField( max_length=255 )
 	slug = models.SlugField()
+	timezone = models.CharField( max_length=40, default='Europe/Berlin' )
 
 	def __unicode__( self ):
 		return self.name
@@ -93,6 +99,20 @@ class Event( archives.ArchiveModel, models.Model ):
 	def __unicode__( self ):
 		return "%s: %s (%s, %s)" % ( self.get_type_display(), self.title, self.location, self.start_date )
 
+	def _get_date_tz( self, date ):
+		if not date:
+			return None
+		return timezone( date, tz=self.location.site.timezone if self.location.site.timezone else settings.TIME_ZONE )
+
+	def _get_start_date_tz( self ):
+		return self._get_date_tz( self.start_date )
+
+	def _get_end_date_tz( self ):
+		return self._get_date_tz( self.end_date )
+
+	start_date_tz = property( _get_start_date_tz )
+	end_date_tz = property( _get_end_date_tz )
+
 	class Archive:
 		class Meta:
 			release_date = False
@@ -108,25 +128,75 @@ class Event( archives.ArchiveModel, models.Model ):
 
 class EventSerializer( SimpleSerializer ):
 	fields = ( 
-		'title', 
-		'speaker', 
-		'affiliation', 
-		'abstract', 
-		'series', 
-		'type', 
-		'image', 
-		'start_date', 
-		'end_date', 
+		'title',
+		'speaker',
+		'affiliation',
+		'abstract',
+		'series',
+		'type',
+		'image',
+		'start_date_tz',
+		'end_date_tz',
 		'location',
 		'video_url',
 	)
-	
+
 	def get_type_value( self, obj ):
 		return obj.get_type_display()
-	
+
 	def get_image_value( self, obj ):
 		if obj.image and obj.image.resource_screen:
 			return obj.image.resource_screen.url
 		else:
 			return ""
+
+
+class ICalEventSerializer( SimpleSerializer ):
+	"""
+	Serialier responsible for converting events into 
+	iCal data structure. 
+	"""
 	
+	fields = ( 
+		'summary',
+		'description',
+		'location',
+		'dtstart',
+		'dtend',
+		'dtstamp',
+	)
+
+	def get_summary_value( self, obj ):
+		return "%s: %s" % ( obj.series, obj.title ) if obj.series else obj.title
+	
+	def get_description_value( self, obj ):
+		tmp = [obj.title]
+		
+		if obj.speaker:
+			if obj.affiliation:
+				tmp.append("")
+				tmp.append( "Speaker: %s (%s)" % (obj.speaker, obj.affiliation) )
+			else:
+				tmp.append("")
+				tmp.append( "Speaker: %s" % obj.speaker ) 
+		
+		if obj.series:
+			tmp.append( "Series: %s" % obj.series )
+		
+		if obj.abstract:
+			tmp.append("")
+			tmp.append( "ABSTRACT: %s" % obj.abstract )
+		
+		return "\n".join( tmp )
+
+	def get_location_value( self, obj ):
+		return obj.location
+	
+	def get_dtstart_value( self, obj ):
+		return obj.start_date_tz
+	
+	def get_dtend_value( self, obj ):
+		return obj.obj.end_date_tz if obj.end_date_tz else obj.start_date_tz
+	
+	def get_dtstamp_value( self, obj ):
+		return obj.obj.end_date_tz if obj.end_date_tz else obj.start_date_tz

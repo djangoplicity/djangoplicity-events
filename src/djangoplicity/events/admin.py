@@ -55,7 +55,12 @@ class EventLocationAdmin( BaseAdmin ):
 	)
 
 class EventSiteAdmin( BaseAdmin ):
-	pass
+	list_display = ( 'id', 'name', 'slug', 'timezone' )
+	list_editable = ( 'name', 'slug', 'timezone' )
+	search_fields = ( 'name', 'slug', 'timezone' )
+	fieldsets = (
+		( None, { 'fields' : ( 'name', 'slug', 'timezone' ) } ),
+	)
 
 class EventSeriesAdmin( BaseAdmin ):
 	pass

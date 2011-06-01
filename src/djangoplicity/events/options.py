@@ -31,24 +31,32 @@
 #
 from django.utils.translation import ugettext as _
 from djangoplicity.archives import ArchiveOptions
-from djangoplicity.archives.contrib.browsers import NormalBrowser, \
-	SerializationBrowser
+from djangoplicity.archives.contrib.browsers import ListBrowser, SerializationBrowser
 from djangoplicity.archives.contrib.queries import AllPublicQuery
-from djangoplicity.archives.contrib.serialization import XMPEmitter, JSONEmitter
+from djangoplicity.archives.contrib.serialization import JSONEmitter, ICalEmitter
 from djangoplicity.archives.views import SerializationDetailView
-from djangoplicity.events.models import EventSerializer
+from djangoplicity.events.models import EventSerializer, ICalEventSerializer
 from djangoplicity.events.queries import SiteQuery
 	
 class EventOptions( ArchiveOptions ):
 	urlname_prefix = "events"
 	
+	#title = ugettext_noop("Events and Meetings")
+	
 	detail_views = (
 		{ 'url_pattern' : 'api/(?P<serializer>json)/', 'view' : SerializationDetailView( serializer=EventSerializer, emitters=[JSONEmitter] ), 'urlname_suffix' : 'serialization', },
 	)
 	
+	search_fields = ( 
+		'location__name', 'series__name', 'title', 'speaker', 'affiliation', 'abstract', 
+	)
+	
 	class Queries(object):
-		default = AllPublicQuery( browsers = ( 'json', ), verbose_name = "Events and meetings" )
-		site = SiteQuery( browsers = ('json',), verbose_name = "Events and meetings" )
+		default = AllPublicQuery( browsers = ( 'html', 'json', 'ical' ), verbose_name = "Seminars and Colloquia" )
+		site = SiteQuery( browsers = ( 'html', 'json', 'ical' ), verbose_name = "Seminars and Colloquia" )
 		
 	class Browsers(object):
-		json = SerializationBrowser( serializer=EventSerializer, emitter=JSONEmitter, paginate_by=100, display=False, verbose_name=_("JSON") )
+		html = ListBrowser()
+		json = SerializationBrowser( serializer=EventSerializer, emitter=JSONEmitter, paginate_by=100, display=False, verbose_name=_( "JSON" ) )
+		ical = SerializationBrowser( serializer=ICalEventSerializer, emitter=ICalEmitter, paginate_by=100, display=True, verbose_name=_( "iCal" ) ) 
+		

@@ -54,6 +54,9 @@ class EventOptions( ArchiveOptions ):
 	class Queries(object):
 		default = AllPublicQuery( browsers = ( 'html', 'json', 'ical' ), verbose_name = "Seminars and Colloquia" )
 		site = SiteQuery( browsers = ( 'html', 'json', 'ical' ), verbose_name = "Seminars and Colloquia" )
+		future_site = SiteQuery( browsers = ( 'html', 'json', 'ical' ), future=True, verbose_name = "Seminars and Colloquia" )
+		past_site = SiteQuery( browsers = ( 'html', 'json', 'ical' ), past=True, verbose_name = "Seminars and Colloquia" )
+		
 		
 	class Browsers(object):
 		html = ListBrowser( verbose_name='HTML' )

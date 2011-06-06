@@ -38,14 +38,14 @@ class SiteQuery( ForeignKeyQuery ):
 	def __init__( self, future=False, past=False, *args, **kwargs ):
 		self.future = future
 		self.past = past
-		super( SiteQuery, self ).__init__( 'location__site__name', *args, **kwargs )
+		super( SiteQuery, self ).__init__( 'location__site__slug', *args, **kwargs )
 		
 	def queryset( self, model, options, request, **kwargs ):
 		( qs , query_data ) = super( SiteQuery, self ).queryset( model, options, request, **kwargs )
-		
+
 		if self.future:
-			qs = qs.filter( end_date__lte >= datetime.now() )
+			qs = qs.filter( end_date__gte = datetime.now() )
 		elif self.past:
-			qs = qs.filter( end_date__lte <= datetime.now() )
+			qs = qs.filter( end_date__lte = datetime.now() )
 		
 		return ( qs , query_data )

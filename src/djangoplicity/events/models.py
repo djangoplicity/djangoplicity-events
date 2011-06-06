@@ -196,7 +196,7 @@ class ICalEventSerializer( SimpleSerializer ):
 		return obj.start_date_tz
 	
 	def get_dtend_value( self, obj ):
-		return obj.obj.end_date_tz if obj.end_date_tz else obj.start_date_tz
+		return obj.end_date_tz if obj.end_date_tz else obj.start_date_tz
 	
 	def get_dtstamp_value( self, obj ):
-		return obj.obj.end_date_tz if obj.end_date_tz else obj.start_date_tz
+		return obj.end_date_tz if obj.end_date_tz else obj.start_date_tz

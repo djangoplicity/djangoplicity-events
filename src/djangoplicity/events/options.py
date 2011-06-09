@@ -35,7 +35,7 @@ from djangoplicity.archives.contrib.browsers import ListBrowser, SerializationBr
 from djangoplicity.archives.contrib.queries import AllPublicQuery
 from djangoplicity.archives.contrib.serialization import JSONEmitter, ICalEmitter
 from djangoplicity.archives.views import SerializationDetailView
-from djangoplicity.events.models import EventSerializer, ICalEventSerializer
+from djangoplicity.events.serializers import EventSerializer, ICalEventSerializer
 from djangoplicity.events.queries import SiteQuery
 	
 class EventOptions( ArchiveOptions ):
@@ -54,8 +54,6 @@ class EventOptions( ArchiveOptions ):
 	class Queries(object):
 		default = AllPublicQuery( browsers = ( 'html', 'json', 'ical' ), verbose_name = "Seminars and Colloquia" )
 		site = SiteQuery( browsers = ( 'html', 'json', 'ical' ), verbose_name = "Seminars and Colloquia" )
-		future_site = SiteQuery( browsers = ( 'html', 'json', 'ical' ), future=True, verbose_name = "Seminars and Colloquia" )
-		past_site = SiteQuery( browsers = ( 'html', 'json', 'ical' ), past=True, verbose_name = "Seminars and Colloquia" )
 		
 		
 	class Browsers(object):

@@ -38,8 +38,6 @@ from datetime import datetime
 from django.db import models
 from django.utils.translation import ugettext as _
 from djangoplicity import archives
-from djangoplicity.archives.contrib.serialization import Serializer, \
-	Serialization, SimpleSerializer
 from djangoplicity.media.models import Image
 import os
 from pytz import all_timezones
@@ -49,6 +47,9 @@ from django.conf import settings
 EVENT_TYPES = ( 
 	( 'E', 'Event' ),
 	( 'M', 'Meeting' ),
+	( 'C', 'Conference' ),
+	( 'W', 'Workshop' ),
+	( 'T', 'Talk' ),
  )
 
 EVENTSITE_TZS = [( tz, tz ) for tz in all_timezones]
@@ -57,7 +58,7 @@ class EventSite( models.Model ):
 	""" Defines a given site - e.g. Garching, Santiago or Paranal"""
 	name = models.CharField( max_length=255 )
 	slug = models.SlugField()
-	timezone = models.CharField( max_length=40, default='Europe/Berlin' )
+	timezone = models.CharField( max_length=40, default='Europe/Berlin', choices=EVENTSITE_TZS )
 
 	def __unicode__( self ):
 		return self.name
@@ -88,13 +89,14 @@ class Event( archives.ArchiveModel, models.Model ):
 	end_date = models.DateTimeField( blank=True, null=True, )
 	location = models.ForeignKey( EventLocation, blank=True, null=True )
 	series = models.ForeignKey( EventSeries, blank=True, null=True )
-	type = models.CharField( max_length=1, db_index=True, choices=EVENT_TYPES, default='M', help_text="The event and meeting type is used to control where the event is displayed on the website." )
+	type = models.CharField( max_length=1, db_index=True, choices=EVENT_TYPES, default='T', help_text="The event and meeting type is used to control where the event is displayed on the website." )
 	title = models.CharField( max_length=255 )
 	speaker = models.CharField( max_length=255, blank=True )
 	affiliation = models.CharField( max_length=255, blank=True, help_text="Affiliation of the speaker - please keep short if possible." )
 	abstract = models.TextField( blank=True )
 	image = models.ForeignKey( Image, blank=True, null=True, help_text="Image id of image to display together with this event." )
-	video_url = models.URLField( blank=True, null=True, verify_exists=False, max_length=255, help_text="Link to flash video (.flv) of this event if exists." )
+	video_url = models.URLField( verbose_name="Video URL", blank=True, null=True, verify_exists=False, max_length=255, help_text="Link to flash video (.flv) of this event if exists." )
+	additional_information = models.CharField( max_length=255, blank=True, help_text="Short additional information to be displayed on reception screen." ) 
 
 	def __unicode__( self ):
 		return "%s: %s (%s, %s)" % ( self.get_type_display(), self.title, self.location, self.start_date )
@@ -124,79 +126,3 @@ class Event( archives.ArchiveModel, models.Model ):
 	class Meta:
 		verbose_name = _( 'event or meeting' )
 		verbose_name_plural = _( 'events and meetings' )
-
-
-class EventSerializer( SimpleSerializer ):
-	fields = ( 
-		'title',
-		'speaker',
-		'affiliation',
-		'abstract',
-		'series',
-		'type',
-		'image',
-		'start_date_tz',
-		'end_date_tz',
-		'location',
-		'video_url',
-	)
-
-	def get_type_value( self, obj ):
-		return obj.get_type_display()
-
-	def get_image_value( self, obj ):
-		if obj.image and obj.image.resource_screen:
-			return obj.image.resource_screen.url
-		else:
-			return ""
-
-
-class ICalEventSerializer( SimpleSerializer ):
-	"""
-	Serialier responsible for converting events into 
-	iCal data structure. 
-	"""
-	
-	fields = ( 
-		'summary',
-		'description',
-		'location',
-		'dtstart',
-		'dtend',
-		'dtstamp',
-	)
-
-	def get_summary_value( self, obj ):
-		return "%s: %s" % ( obj.series, obj.title ) if obj.series else obj.title
-	
-	def get_description_value( self, obj ):
-		tmp = [obj.title]
-		
-		if obj.speaker:
-			if obj.affiliation:
-				tmp.append("")
-				tmp.append( "Speaker: %s (%s)" % (obj.speaker, obj.affiliation) )
-			else:
-				tmp.append("")
-				tmp.append( "Speaker: %s" % obj.speaker ) 
-		
-		if obj.series:
-			tmp.append( "Series: %s" % obj.series )
-		
-		if obj.abstract:
-			tmp.append("")
-			tmp.append( "ABSTRACT: %s" % obj.abstract )
-		
-		return "\n".join( tmp )
-
-	def get_location_value( self, obj ):
-		return obj.location
-	
-	def get_dtstart_value( self, obj ):
-		return obj.start_date_tz
-	
-	def get_dtend_value( self, obj ):
-		return obj.end_date_tz if obj.end_date_tz else obj.start_date_tz
-	
-	def get_dtstamp_value( self, obj ):
-		return obj.end_date_tz if obj.end_date_tz else obj.start_date_tz

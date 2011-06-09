@@ -35,6 +35,7 @@ from djangoplicity.archives.contrib.queries import ForeignKeyQuery
 from django.http import Http404
 from django.core import validators
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 
 class SiteQuery( ForeignKeyQuery ):
 	"""
@@ -85,10 +86,10 @@ class SiteQuery( ForeignKeyQuery ):
 			qs = qs.filter( series__slug=series )
 		if upcoming is not None:
 			if upcoming == 0:
-				qs = qs.filter( end_date__lte=datetime.now() )
+				qs = qs.filter( Q( end_date__lte=datetime.now(), end_date__isnull=False ) | Q( start_date__lte=datetime.now(), end_date__isnull=True ) )
 			elif upcoming == 1:
-				qs = qs.filter( end_date__gte=datetime.now() )
+				qs = qs.filter( Q( end_date__gte=datetime.now(), end_date__isnull=False ) | Q( start_date__gte=datetime.now(), end_date__isnull=True ) )
 		if calendar and upcoming is None:
-			qs = qs.filter( end_date__gte=( datetime.now() - timedelta( weeks=8 ) ) )
+			qs = qs.filter( Q( end_date__gte=( datetime.now() - timedelta( weeks=8 ) ), end_date__isnull=False ) | Q( start_date__gte=( datetime.now() - timedelta( weeks=8 ) ), end_date__isnull=True ) )
 			
 		return ( qs , query_data )

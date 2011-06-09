@@ -45,11 +45,11 @@ from djangoplicity.utils.datetimes import timezone
 from django.conf import settings
 
 EVENT_TYPES = ( 
+	( 'C', 'Conference' ),
 	( 'E', 'Event' ),
 	( 'M', 'Meeting' ),
-	( 'C', 'Conference' ),
-	( 'W', 'Workshop' ),
 	( 'T', 'Talk' ),
+	( 'W', 'Workshop' ),
  )
 
 EVENTSITE_TZS = [( tz, tz ) for tz in all_timezones]
@@ -62,6 +62,9 @@ class EventSite( models.Model ):
 
 	def __unicode__( self ):
 		return self.name
+	
+	class Meta:
+		ordering = ('name',)
 
 class EventSeries( models.Model ):
 	""" Defines series of talks - e.g Astronomy for non-astronomers """
@@ -70,6 +73,7 @@ class EventSeries( models.Model ):
 
 	class Meta:
 		verbose_name_plural = _( 'event series' )
+		ordering = ('name',)
 
 	def __unicode__( self ):
 		return self.name
@@ -82,6 +86,9 @@ class EventLocation( models.Model ):
 
 	def __unicode__( self ):
 		return "%s, %s" % ( self.name, unicode( self.site ) )
+	
+	class Meta:
+		ordering = ('site__name','name')
 
 class Event( archives.ArchiveModel, models.Model ):
 	""" Defines an event or meeting """
@@ -122,7 +129,10 @@ class Event( archives.ArchiveModel, models.Model ):
 			last_modified = True
 			created = True
 			published = True
+			sort_fields = ( 'start_date', )
 
 	class Meta:
 		verbose_name = _( 'event or meeting' )
 		verbose_name_plural = _( 'events and meetings' )
+		ordering = ( 'start_date', )
+

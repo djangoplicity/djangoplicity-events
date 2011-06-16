@@ -111,7 +111,8 @@ class Event( archives.ArchiveModel, models.Model ):
 	def _get_date_tz( self, date ):
 		if not date:
 			return None
-		return timezone( date, tz=self.location.site.timezone if self.location.site.timezone else settings.TIME_ZONE )
+		return timezone( date, tz=self.location.site.timezone if self.location and self.location.site and self.location.site.timezone else settings.TIME_ZONE )
+		
 
 	def _get_start_date_tz( self ):
 		return self._get_date_tz( self.start_date )
@@ -125,6 +126,8 @@ class Event( archives.ArchiveModel, models.Model ):
 	class Archive:
 		class Meta:
 			release_date = False
+			start_date = True
+			start_date_fieldname = 'start_date'
 			embargo_date = False
 			last_modified = True
 			created = True

@@ -32,7 +32,7 @@
 from django.utils.translation import ugettext as _
 from djangoplicity.archives import ArchiveOptions
 from djangoplicity.archives.contrib.browsers import ListBrowser, SerializationBrowser
-from djangoplicity.archives.contrib.queries import AllPublicQuery
+from djangoplicity.archives.contrib.queries import AllPublicQuery, YearQuery
 from djangoplicity.archives.contrib.serialization import JSONEmitter, ICalEmitter
 from djangoplicity.archives.views import SerializationDetailView
 from djangoplicity.events.serializers import EventSerializer, ICalEventSerializer
@@ -54,6 +54,7 @@ class EventOptions( ArchiveOptions ):
 	class Queries(object):
 		default = AllPublicQuery( browsers = ( 'html', 'json', 'ical' ), verbose_name = "Seminars and Colloquia" )
 		site = SiteQuery( browsers = ( 'html', 'json', 'ical' ), verbose_name = "Seminars and Colloquia" )
+		year = YearQuery( browsers = ( 'html', 'json', 'ical' ), datetime_feature='start_date', verbose_name = "Seminars and Colloquia %d")  
 		
 		
 	class Browsers(object):

@@ -14,7 +14,7 @@
 #      notice, this list of conditions and the following disclaimer in the
 #      documentation and/or other materials provided with the distribution.
 #
-#    * Neither the name of the European Southern Observatory nor the names 
+#    * Neither the name of the European Southern Observatory nor the names
 #      of its contributors may be used to endorse or promote products derived
 #      from this software without specific prior written permission.
 #
@@ -31,28 +31,28 @@
 #
 
 """
-Models for the djangoplicity event app. 
+Models for the djangoplicity event app.
 """
 
-from datetime import datetime
 from django.db import models
+from django.utils import dateformat, formats
 from django.utils.translation import ugettext as _
 from djangoplicity import archives
 from djangoplicity.media.models import Image
-import os
 from pytz import all_timezones
 from djangoplicity.utils.datetimes import timezone
 from django.conf import settings
 
-EVENT_TYPES = ( 
+EVENT_TYPES = (
 	( 'C', 'Conference' ),
 	( 'E', 'Event' ),
 	( 'M', 'Meeting' ),
 	( 'T', 'Talk' ),
 	( 'W', 'Workshop' ),
- )
+)
 
 EVENTSITE_TZS = [( tz, tz ) for tz in all_timezones]
+
 
 class EventSite( models.Model ):
 	""" Defines a given site - e.g. Garching, Santiago or Paranal"""
@@ -62,9 +62,10 @@ class EventSite( models.Model ):
 
 	def __unicode__( self ):
 		return self.name
-	
+
 	class Meta:
 		ordering = ('name',)
+
 
 class EventSeries( models.Model ):
 	""" Defines series of talks - e.g Astronomy for non-astronomers """
@@ -78,6 +79,7 @@ class EventSeries( models.Model ):
 	def __unicode__( self ):
 		return self.name
 
+
 class EventLocation( models.Model ):
 	""" Defines a room at a given site """
 	name = models.CharField( max_length=255 )
@@ -86,9 +88,10 @@ class EventLocation( models.Model ):
 
 	def __unicode__( self ):
 		return "%s, %s" % ( self.name, unicode( self.site ) )
-	
+
 	class Meta:
-		ordering = ('site__name','name')
+		ordering = ('site__name', 'name')
+
 
 class Event( archives.ArchiveModel, models.Model ):
 	""" Defines an event or meeting """
@@ -103,7 +106,7 @@ class Event( archives.ArchiveModel, models.Model ):
 	abstract = models.TextField( blank=True )
 	image = models.ForeignKey( Image, blank=True, null=True, help_text="Image id of image to display together with this event." )
 	video_url = models.URLField( verbose_name="Video URL", blank=True, null=True, verify_exists=False, max_length=255, help_text="Link to flash video (.flv) of this event if exists." )
-	additional_information = models.CharField( max_length=255, blank=True, help_text="Short additional information to be displayed on reception screen." ) 
+	additional_information = models.CharField( max_length=255, blank=True, help_text="Short additional information to be displayed on reception screen." )
 
 	def __unicode__( self ):
 		return "%s: %s (%s, %s)" % ( self.get_type_display(), self.title, self.location, self.start_date )
@@ -112,7 +115,19 @@ class Event( archives.ArchiveModel, models.Model ):
 		if not date:
 			return None
 		return timezone( date, tz=self.location.site.timezone if self.location and self.location.site and self.location.site.timezone else settings.TIME_ZONE )
-		
+
+	def get_dates( self ):
+		if self.end_date and self.start_date:
+			if self.end_date.year != self.start_date.year:
+				return "%s - %s" % ( formats.date_format( self.start_date ), formats.date_format( self.end_date ) )
+			elif self.end_date.month != self.start_date.month:
+				return "%s - %s %s" % ( dateformat.format( self.start_date, "j F" ), dateformat.format( self.end_date, "j F" ), self.start_date.year )
+			elif self.end_date.day != self.start_date.day:
+				return "%s - %s %s" % ( dateformat.format( self.start_date, "j" ), dateformat.format( self.end_date, "j" ), dateformat.format( self.start_date, "F Y" ) )
+			else:
+				return formats.date_format( self.start_date )
+		else:
+			return formats.date_format( self.start_date )
 
 	def _get_start_date_tz( self ):
 		return self._get_date_tz( self.start_date )
@@ -138,4 +153,3 @@ class Event( archives.ArchiveModel, models.Model ):
 		verbose_name = _( 'event or meeting' )
 		verbose_name_plural = _( 'events and meetings' )
 		ordering = ( 'start_date', )
-

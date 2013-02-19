@@ -105,7 +105,8 @@ class Event( archives.ArchiveModel, models.Model ):
 	affiliation = models.CharField( max_length=255, blank=True, help_text="Affiliation of the speaker - please keep short if possible." )
 	abstract = models.TextField( blank=True )
 	image = models.ForeignKey( Image, blank=True, null=True, help_text="Image id of image to display together with this event." )
-	video_url = models.URLField( verbose_name="Video URL", blank=True, null=True, verify_exists=False, max_length=255, help_text="Link to flash video (.flv) of this event if exists." )
+	webpage_url = models.URLField( verbose_name="Webpage URL", blank=True, null=True, verify_exists=False, max_length=255, help_text="Link to webpage of this event if it exists." )
+	video_url = models.URLField( verbose_name="Video URL", blank=True, null=True, verify_exists=False, max_length=255, help_text="Link to flash video (.flv) of this event if it exists." )
 	additional_information = models.CharField( max_length=255, blank=True, help_text="Short additional information to be displayed on reception screen." )
 
 	def __unicode__( self ):

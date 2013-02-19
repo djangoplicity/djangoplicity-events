@@ -14,7 +14,7 @@
 #      notice, this list of conditions and the following disclaimer in the
 #      documentation and/or other materials provided with the distribution.
 #
-#    * Neither the name of the European Southern Observatory nor the names 
+#    * Neither the name of the European Southern Observatory nor the names
 #      of its contributors may be used to endorse or promote products derived
 #      from this software without specific prior written permission.
 #
@@ -31,47 +31,50 @@
 #
 
 from django.contrib import admin
-from django.utils.translation import ugettext as _
-from djangoplicity.archives.contrib.admin import ArchiveAdmin
 from djangoplicity.events.models import Event, EventLocation, EventSeries, \
 	EventSite
 
+
 class BaseAdmin( admin.ModelAdmin ):
-	list_display = ('id', 'name','slug')
-	list_editable = ('name','slug')
-	search_fields = ( 'name', 'slug', )
+	list_display = ('id', 'name', 'slug')
+	list_editable = ('name', 'slug')
+	search_fields = ( 'name', 'slug' )
 	fieldsets = (
-		( None, { 'fields' : ( 'name', 'slug', ) }),
+		( None, { 'fields': ( 'name', 'slug', ) }),
 	)
 	ordering = ('name',)
-	prepopulated_fields = { 'slug' : ('name',) }
-	
+	prepopulated_fields = { 'slug': ('name', ) }
+
+
 class EventLocationAdmin( BaseAdmin ):
 	list_display = ( 'id', 'name', 'slug', 'site' )
 	list_editable = ( 'name', 'slug', 'site' )
 	search_fields = ( 'name', 'slug', 'site__name' )
 	fieldsets = (
-		( None, { 'fields' : ( 'name', 'slug', 'site' ) } ),
+		( None, { 'fields': ( 'name', 'slug', 'site' ) } ),
 	)
+
 
 class EventSiteAdmin( BaseAdmin ):
 	list_display = ( 'id', 'name', 'slug', 'timezone' )
 	list_editable = ( 'name', 'slug', 'timezone' )
 	search_fields = ( 'name', 'slug', 'timezone' )
 	fieldsets = (
-		( None, { 'fields' : ( 'name', 'slug', 'timezone' ) } ),
+		( None, { 'fields': ( 'name', 'slug', 'timezone' ) } ),
 	)
+
 
 class EventSeriesAdmin( BaseAdmin ):
 	pass
 
+
 class EventAdmin( admin.ModelAdmin ):
-	list_display = ( 'title', 'speaker', 'start_date', 'end_date', 'location', 'series', 'type', 'published', ) 
+	list_display = ( 'title', 'speaker', 'start_date', 'end_date', 'location', 'series', 'type', 'published', )
 	list_filter = ( 'last_modified', 'published', 'type', 'location', 'location__site' )
 	list_editable = ( 'series', 'type', 'location', )
 	search_fields = ( 'title', 'speaker', 'location__name', 'series__name', 'type', 'affiliation', 'abstract', )
 	fieldsets = (
-		( 'Event or meeting', { 'fields': ( 'type', 'series', 'title', 'speaker', 'affiliation', 'abstract', 'image', 'video_url', 'additional_information' ) } ),
+		( 'Event or meeting', { 'fields': ( 'type', 'series', 'title', 'speaker', 'affiliation', 'abstract', 'image', 'webpage_url', 'video_url', 'additional_information' ) } ),
 		( 'Locaiton and date', { 'fields': ( 'start_date', 'end_date', 'location', ) } ),
 		( 'Publishing', {'fields': ( 'published', 'last_modified', 'created' ), } ),
 	)
@@ -79,11 +82,12 @@ class EventAdmin( admin.ModelAdmin ):
 	raw_id_fields = ( 'image', )
 	ordering = ('-start_date',)
 
+
 def register_with_admin( admin_site ):
 	admin_site.register( EventLocation, EventLocationAdmin )
 	admin_site.register( EventSite, EventSiteAdmin )
 	admin_site.register( EventSeries, EventSeriesAdmin )
 	admin_site.register( Event, EventAdmin )
-	
-# Register with default admin site	
+
+# Register with default admin site
 register_with_admin( admin.site )

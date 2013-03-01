@@ -31,6 +31,7 @@
 #
 
 from django.contrib import admin
+from djangoplicity.contrib.admin import DjangoplicityModelAdmin
 from djangoplicity.events.models import Event, EventLocation, EventSeries, \
 	EventSite
 
@@ -68,11 +69,12 @@ class EventSeriesAdmin( BaseAdmin ):
 	pass
 
 
-class EventAdmin( admin.ModelAdmin ):
+class EventAdmin( DjangoplicityModelAdmin ):
 	list_display = ( 'title', 'speaker', 'start_date', 'end_date', 'location', 'series', 'type', 'published', )
 	list_filter = ( 'last_modified', 'published', 'type', 'location', 'location__site' )
 	list_editable = ( 'series', 'type', 'location', )
 	search_fields = ( 'title', 'speaker', 'location__name', 'series__name', 'type', 'affiliation', 'abstract', )
+	richtext_fields = ( 'abstract', )
 	fieldsets = (
 		( 'Event or meeting', { 'fields': ( 'type', 'series', 'title', 'speaker', 'affiliation', 'abstract', 'image', 'webpage_url', 'video_url', 'additional_information' ) } ),
 		( 'Locaiton and date', { 'fields': ( 'start_date', 'end_date', 'location', ) } ),

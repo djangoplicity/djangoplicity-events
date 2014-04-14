@@ -29,8 +29,5 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE
 #
-include distribute_setup.py *.txt
+include *.txt
 recursive-include docs *
-recursive-include src/djangoplicity/events/templates *
-recursive-include src/djangoplicity/events/static *
-prune docs/build

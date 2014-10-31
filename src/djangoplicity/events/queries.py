@@ -31,7 +31,7 @@
 #
 
 from datetime import datetime, timedelta
-from djangoplicity.archives.contrib.queries import ForeignKeyQuery
+from djangoplicity.archives.contrib.queries import ForeignKeyQuery, AllPublicQuery
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db.models import Q
@@ -83,6 +83,67 @@ class SiteQuery( ForeignKeyQuery ):
 
 		if type:
 			qs = qs.filter( type=type.upper() )
+		if series:
+			qs = qs.filter( series__slug=series )
+		if upcoming is not None:
+			if upcoming == 0:
+				qs = qs.filter( Q( end_date__lte=datetime.now(), end_date__isnull=False ) | Q( start_date__lte=datetime.now(), end_date__isnull=True ) )
+			elif upcoming == 1:
+				qs = qs.filter( Q( end_date__gte=datetime.now(), end_date__isnull=False ) | Q( start_date__gte=datetime.now(), end_date__isnull=True ) )
+		if calendar and upcoming is None:
+			qs = qs.filter( Q( end_date__gte=( datetime.now() - timedelta( weeks=8 ) ), end_date__isnull=False ) | Q( start_date__gte=( datetime.now() - timedelta( weeks=8 ) ), end_date__isnull=True ) )
+
+		if year:
+			qs = qs.filter(start_date__year=year)
+
+		return ( qs, query_data )
+
+
+class AllEventsQuery( AllPublicQuery ):
+	"""
+	Archive query for filtering events by location site (e.g. ESO Garching)
+	"""
+
+	def _sanitize_slug( self, value ):
+		"""
+		Make sure a request input value is actually slug. If not,
+		the just return an empty string.
+		"""
+		if value:
+			try:
+				validators.validate_slug( value )
+				return value
+			except ValidationError:
+				pass
+		return ''
+
+	def queryset( self, model, options, request, **kwargs ):
+		"""
+		Allow extra get parameters to filter list of shown items.
+
+		- type: filter by type
+		- series: filter by series
+		- upcoming (0/1): filter by past or future events
+		- calendar: return only events no more than 8 weeks in the past and all in t
+		- year: return only events from the given year
+		"""
+		( qs, query_data ) = super( AllEventsQuery, self ).queryset( model, options, request, **kwargs )
+
+		# Possible get parameters for the site_query
+		type = [ self._sanitize_slug(t).upper() for t in request.GET.getlist( 'type', ''  ) ]
+		series = self._sanitize_slug( request.GET.get( 'series', '' ) )
+		calendar = request.GET.get( 'calendar', None )  # 0 for past, 1 for future
+		year = request.GET.get( 'year', None )
+
+		try:
+			upcoming = int( request.GET.get( 'upcoming', None ) )  # 0 for past, 1 for future
+		except (ValueError, TypeError):
+			upcoming = None
+
+		print '**', type
+
+		if type:
+			qs = qs.filter( type__in=type )
 		if series:
 			qs = qs.filter( series__slug=series )
 		if upcoming is not None:

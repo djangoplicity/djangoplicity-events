@@ -14,7 +14,7 @@
 #	  notice, this list of conditions and the following disclaimer in the
 #	  documentation and/or other materials provided with the distribution.
 #
-#	* Neither the name of the European Southern Observatory nor the names 
+#	* Neither the name of the European Southern Observatory nor the names
 #	  of its contributors may be used to endorse or promote products derived
 #	  from this software without specific prior written permission.
 #
@@ -31,23 +31,23 @@
 #
 
 from datetime import datetime, timedelta
-from djangoplicity.archives.contrib.queries import ForeignKeyQuery 
-from django.http import Http404
+from djangoplicity.archives.contrib.queries import ForeignKeyQuery
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+
 
 class SiteQuery( ForeignKeyQuery ):
 	"""
 	Archive query for filtering events by location site (e.g. ESO Garching)
 	"""
-	
+
 	def __init__( self, *args, **kwargs ):
 		super( SiteQuery, self ).__init__( 'location__site__slug', *args, **kwargs )
 
 	def _sanitize_slug( self, value ):
 		"""
-		Make sure a request input value is actually slug. If not, 
+		Make sure a request input value is actually slug. If not,
 		the just return an empty string.
 		"""
 		if value:
@@ -57,29 +57,30 @@ class SiteQuery( ForeignKeyQuery ):
 			except ValidationError:
 				pass
 		return ''
-				
-	
+
 	def queryset( self, model, options, request, **kwargs ):
 		"""
 		Allow extra get parameters to filter list of shown items.
-		
+
 		- type: filter by type
 		- series: filter by series
 		- upcoming (0/1): filter by past or future events
 		- calendar: return only events no more than 8 weeks in the past and all in t
+		- year: return only events from the given year
 		"""
-		( qs , query_data ) = super( SiteQuery, self ).queryset( model, options, request, **kwargs )
-		
+		( qs, query_data ) = super( SiteQuery, self ).queryset( model, options, request, **kwargs )
+
 		# Possible get parameters for the site_query
 		type = self._sanitize_slug( request.GET.get( 'type', '' ) )
 		series = self._sanitize_slug( request.GET.get( 'series', '' ) )
-		calendar = request.GET.get( 'calendar', None ) # 0 for past, 1 for future
-		
-		try: 
-			upcoming = int( request.GET.get( 'upcoming', None ) ) # 0 for past, 1 for future
+		calendar = request.GET.get( 'calendar', None )  # 0 for past, 1 for future
+		year = request.GET.get( 'year', None )
+
+		try:
+			upcoming = int( request.GET.get( 'upcoming', None ) )  # 0 for past, 1 for future
 		except (ValueError, TypeError):
 			upcoming = None
-		
+
 		if type:
 			qs = qs.filter( type=type.upper() )
 		if series:
@@ -91,5 +92,8 @@ class SiteQuery( ForeignKeyQuery ):
 				qs = qs.filter( Q( end_date__gte=datetime.now(), end_date__isnull=False ) | Q( start_date__gte=datetime.now(), end_date__isnull=True ) )
 		if calendar and upcoming is None:
 			qs = qs.filter( Q( end_date__gte=( datetime.now() - timedelta( weeks=8 ) ), end_date__isnull=False ) | Q( start_date__gte=( datetime.now() - timedelta( weeks=8 ) ), end_date__isnull=True ) )
-			
-		return ( qs , query_data )
+
+		if year:
+			qs = qs.filter(start_date__year=year)
+
+		return ( qs, query_data )

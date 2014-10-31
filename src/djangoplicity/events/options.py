@@ -14,7 +14,7 @@
 #      notice, this list of conditions and the following disclaimer in the
 #      documentation and/or other materials provided with the distribution.
 #
-#    * Neither the name of the European Southern Observatory nor the names 
+#    * Neither the name of the European Southern Observatory nor the names
 #      of its contributors may be used to endorse or promote products derived
 #      from this software without specific prior written permission.
 #
@@ -37,27 +37,27 @@ from djangoplicity.archives.contrib.serialization import JSONEmitter, ICalEmitte
 from djangoplicity.archives.views import SerializationDetailView
 from djangoplicity.events.serializers import EventSerializer, ICalEventSerializer
 from djangoplicity.events.queries import SiteQuery
-	
+
+
 class EventOptions( ArchiveOptions ):
 	urlname_prefix = "events"
-	
+
 	#title = ugettext_noop("Events and Meetings")
-	
+
 	detail_views = (
-		{ 'url_pattern' : 'api/(?P<serializer>json)/', 'view' : SerializationDetailView( serializer=EventSerializer, emitters=[JSONEmitter] ), 'urlname_suffix' : 'serialization', },
+		{ 'url_pattern': 'api/(?P<serializer>json)/', 'view': SerializationDetailView( serializer=EventSerializer, emitters=[JSONEmitter] ), 'urlname_suffix': 'serialization', },
 	)
-	
-	search_fields = ( 
-		'location__name', 'series__name', 'title', 'speaker', 'affiliation', 'abstract', 
+
+	search_fields = (
+		'location__name', 'series__name', 'title', 'speaker', 'affiliation', 'abstract',
 	)
-	
+
 	class Queries(object):
-		default = AllPublicQuery( browsers = ( 'html', 'json', 'ical' ), verbose_name = "Seminars and Colloquia" )
-		site = SiteQuery( browsers = ( 'html', 'json', 'ical' ), verbose_name = "Seminars and Colloquia" )
-		year = YearQuery( browsers = ( 'html', 'json', 'ical' ), datetime_feature='start_date', verbose_name = "Seminars and Colloquia %d")  
-		
-		
+		default = AllPublicQuery( browsers=( 'html', 'json', 'ical' ), verbose_name = "Seminars and Colloquia" )
+		site = SiteQuery( browsers=( 'html', 'json', 'ical' ), verbose_name = "Seminars and Colloquia" )
+		year = YearQuery( browsers=( 'html', 'json', 'ical' ), datetime_feature='start_date', verbose_name = "Seminars and Colloquia %d")
+
 	class Browsers(object):
-		html = ListBrowser( verbose_name='HTML' )
+		html = ListBrowser( verbose_name='HTML', paginate_by=200 )
 		json = SerializationBrowser( serializer=EventSerializer, emitter=JSONEmitter, paginate_by=100, display=False, verbose_name=_( "JSON" ) )
-		ical = SerializationBrowser( serializer=ICalEventSerializer, emitter=ICalEmitter, paginate_by=100, display=True, verbose_name=_( "iCal" ) ) 		
+		ical = SerializationBrowser( serializer=ICalEventSerializer, emitter=ICalEmitter, paginate_by=100, display=True, verbose_name=_( "iCal" ) )

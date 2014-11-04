@@ -132,6 +132,7 @@ class AllEventsQuery( AllPublicQuery ):
 		# Possible get parameters for the site_query
 		type = [ self._sanitize_slug(t).upper() for t in request.GET.getlist( 'type', ''  ) ]
 		series = self._sanitize_slug( request.GET.get( 'series', '' ) )
+		audience = [ self._sanitize_slug(t).upper() for t in request.GET.getlist( 'audience', ''  ) ]
 		calendar = request.GET.get( 'calendar', None )  # 0 for past, 1 for future
 		year = request.GET.get( 'year', None )
 
@@ -144,6 +145,8 @@ class AllEventsQuery( AllPublicQuery ):
 			qs = qs.filter( type__in=type )
 		if series:
 			qs = qs.filter( series__slug=series )
+		if audience:
+			qs = qs.filter( audience__in=audience )
 		if upcoming is not None:
 			if upcoming == 0:
 				qs = qs.filter( Q( end_date__lte=datetime.now(), end_date__isnull=False ) | Q( start_date__lte=datetime.now(), end_date__isnull=True ) )

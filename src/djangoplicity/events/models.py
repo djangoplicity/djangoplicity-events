@@ -51,6 +51,12 @@ EVENT_TYPES = (
 	( 'W', 'Workshop' ),
 )
 
+AUDIENCE_TYPES = (
+	( 'P', 'Public' ),
+	( 'S', 'Science' ),
+	( 'I', 'Internal' ),
+)
+
 EVENTSITE_TZS = [( tz, tz ) for tz in all_timezones]
 
 
@@ -103,6 +109,7 @@ class Event( archives.ArchiveModel, models.Model ):
 	location = models.ForeignKey( EventLocation, blank=True, null=True )
 	series = models.ForeignKey( EventSeries, blank=True, null=True )
 	type = models.CharField( max_length=1, db_index=True, choices=EVENT_TYPES, default='T', help_text="The event and meeting type is used to control where the event is displayed on the website." )
+	audience = models.CharField( max_length=1, db_index=True, choices=AUDIENCE_TYPES, default='P', help_text="The event and meeting audience is used to control which audience is targetted." )
 	title = models.CharField( max_length=255 )
 	speaker = models.CharField( max_length=255, blank=True )
 	affiliation = models.CharField( max_length=255, blank=True, help_text="Affiliation of the speaker - please keep short if possible." )

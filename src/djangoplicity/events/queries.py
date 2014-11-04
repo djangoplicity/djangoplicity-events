@@ -140,8 +140,6 @@ class AllEventsQuery( AllPublicQuery ):
 		except (ValueError, TypeError):
 			upcoming = None
 
-		print '**', type
-
 		if type:
 			qs = qs.filter( type__in=type )
 		if series:

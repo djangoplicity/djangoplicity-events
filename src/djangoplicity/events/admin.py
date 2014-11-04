@@ -70,13 +70,13 @@ class EventSeriesAdmin( BaseAdmin ):
 
 
 class EventAdmin( DjangoplicityModelAdmin ):
-	list_display = ( 'title', 'speaker', 'start_date', 'end_date', 'location', 'series', 'type', 'published', )
-	list_filter = ( 'last_modified', 'published', 'type', 'location', 'location__site' )
-	list_editable = ( 'series', 'type', 'location', )
-	search_fields = ( 'title', 'speaker', 'location__name', 'series__name', 'type', 'affiliation', 'abstract', )
+	list_display = ( 'title', 'speaker', 'start_date', 'end_date', 'location', 'series', 'type', 'audience', 'published', )
+	list_filter = ( 'last_modified', 'published', 'type', 'audience', 'location', 'location__site' )
+	list_editable = ( 'series', 'type', 'audience', 'location', )
+	search_fields = ( 'title', 'speaker', 'location__name', 'series__name', 'type', 'audience', 'affiliation', 'abstract', )
 	richtext_fields = ( 'abstract', )
 	fieldsets = (
-		( 'Event or meeting', { 'fields': ( 'type', 'series', 'title', 'speaker', 'affiliation', 'abstract', 'image', 'webpage_url', 'video_url', 'additional_information' ) } ),
+		( 'Event or meeting', { 'fields': ( 'type', 'series', 'audience', 'title', 'speaker', 'affiliation', 'abstract', 'image', 'webpage_url', 'video_url', 'additional_information' ) } ),
 		( 'Locaiton and date', { 'fields': ( 'start_date', 'end_date', 'location', ) } ),
 		( 'Publishing', {'fields': ( 'published', 'last_modified', 'created' ), } ),
 	)

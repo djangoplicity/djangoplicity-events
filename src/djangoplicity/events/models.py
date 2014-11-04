@@ -42,6 +42,11 @@ from djangoplicity.media.models import Image
 from pytz import all_timezones
 from djangoplicity.utils.datetimes import timezone
 from django.conf import settings
+from django.db.models.signals import post_init, pre_save, post_save, post_delete
+from django.dispatch import receiver
+
+from djangoplicity.events import tasks
+
 
 EVENT_TYPES = (
 	( 'C', 'Conference' ),
@@ -105,7 +110,7 @@ class EventLocation( models.Model ):
 class Event( archives.ArchiveModel, models.Model ):
 	""" Defines an event or meeting """
 	start_date = models.DateTimeField()
-	end_date = models.DateTimeField( blank=True, null=True, )
+	end_date = models.DateTimeField()
 	location = models.ForeignKey( EventLocation, blank=True, null=True )
 	series = models.ForeignKey( EventSeries, blank=True, null=True )
 	type = models.CharField( max_length=1, db_index=True, choices=EVENT_TYPES, default='T', help_text="The event and meeting type is used to control where the event is displayed on the website." )
@@ -118,6 +123,7 @@ class Event( archives.ArchiveModel, models.Model ):
 	webpage_url = models.URLField( verbose_name="Webpage URL", blank=True, null=True, max_length=255, help_text="Link to webpage of this event if it exists." )
 	video_url = models.URLField( verbose_name="Video URL", blank=True, null=True, max_length=255, help_text="Link to flash video (.flv) of this event if it exists." )
 	additional_information = models.CharField( max_length=255, blank=True, help_text="Short additional information to be displayed on reception screen." )
+	gcal_key = models.CharField( max_length=255, blank=True, null=True, )
 
 	def __unicode__( self ):
 		return "%s: %s (%s, %s)" % ( self.get_type_display(), self.title, self.location, self.start_date )
@@ -164,3 +170,21 @@ class Event( archives.ArchiveModel, models.Model ):
 		verbose_name = _( 'event or meeting' )
 		verbose_name_plural = _( 'events and meetings' )
 		ordering = ( 'start_date', )
+
+
+@receiver(post_init, sender=Event)
+def event_post_init(sender, instance, **kwargs):
+	# storing these values for use in post_save
+	instance._old_audience = instance.audience
+
+@receiver(post_save, sender=Event)
+def event_post_save(sender, instance, **kwargs):
+	update_fields = kwargs['update_fields']
+	if not update_fields or not(len(update_fields)==1 and 'gcal_key' in update_fields):
+		# don't sync if we're only saving the 'gcal_key'
+		tasks.google_calendar_sync.delay(instance)
+
+@receiver(post_delete, sender=Event)
+def event_post_delete(sender, instance, **kwargs):
+	tasks.google_calendar_delete.delay(instance)
+

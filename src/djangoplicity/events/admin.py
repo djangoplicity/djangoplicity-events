@@ -30,10 +30,24 @@
 # POSSIBILITY OF SUCH DAMAGE
 #
 
+from django import forms
 from django.contrib import admin
 from djangoplicity.contrib.admin import DjangoplicityModelAdmin
 from djangoplicity.events.models import Event, EventLocation, EventSeries, \
 	EventSite
+
+class EventAdminForm(forms.ModelForm):
+	class Meta:
+		model = Event
+
+	def clean(self):
+		cleaned_data = super(EventAdminForm, self).clean()
+		start_date = cleaned_data.get('start_date')
+		end_date = cleaned_data.get('end_date')
+		if end_date < start_date:
+			msg = u'End date should be greater than start date.'
+			self._errors['end_date'] = self.error_class([msg])
+		return cleaned_data
 
 
 class BaseAdmin( admin.ModelAdmin ):
@@ -75,6 +89,7 @@ class EventAdmin( DjangoplicityModelAdmin ):
 	list_editable = ( 'series', 'type', 'audience', 'location', )
 	search_fields = ( 'title', 'speaker', 'location__name', 'series__name', 'type', 'audience', 'affiliation', 'abstract', )
 	richtext_fields = ( 'abstract', )
+	form = EventAdminForm
 	fieldsets = (
 		( 'Event or meeting', { 'fields': ( 'type', 'series', 'audience', 'title', 'speaker', 'affiliation', 'abstract', 'image', 'webpage_url', 'video_url', 'additional_information' ) } ),
 		( 'Locaiton and date', { 'fields': ( 'start_date', 'end_date', 'location', ) } ),

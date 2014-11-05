@@ -48,11 +48,22 @@ def _google_calendar_service():
 	service = build(serviceName='calendar', version='v3', http=http_auth)
 	return service
 
+def _google_calendar_update(service, eventId, calendarId, body):
+	# the iCal 'sequence' must be incresed sometimes, see http://www.kanzaki.com/docs/ical/sequence.html
+	old_data = service.events().get(eventId=eventId, calendarId=calendarId).execute()
+	body['sequence'] = old_data['sequence'] + 1
+	return service.events().update(eventId=eventId, calendarId=calendarId, body=body).execute()
+
 @task()
-def google_calendar_sync(instance):
+# def google_calendar_sync(instance):
+def google_calendar_sync(instance_id, _old_audience):
+	from djangoplicity.events.models import Event
+
+	instance = Event.objects.get(id=instance_id)
 	service = _google_calendar_service()
 	calendar_id = settings.GCAL_CALENDAR[instance.audience]
 	g_event_id = instance.gcal_key
+
 
 	## code below retreives old_calendar_id when this function is called on pre_save
 	# get previous calendar id; we might need to move the event to another calendar
@@ -66,7 +77,8 @@ def google_calendar_sync(instance):
 	# code below retreives old_calendar_id when this function is called on post_save
 	# _old_audience is saved on post_init
 	if g_event_id:
-		old_calendar_id = settings.GCAL_CALENDAR[instance._old_audience] 
+		# old_calendar_id = settings.GCAL_CALENDAR[instance._old_audience] 
+		old_calendar_id = settings.GCAL_CALENDAR[_old_audience] 
 
 	# create the event data
 	data = {}
@@ -82,11 +94,11 @@ def google_calendar_sync(instance):
 		if g_event_id:
 			if old_calendar_id != calendar_id:
 				result = service.events().move(eventId=g_event_id, calendarId=old_calendar_id, destination=calendar_id).execute()
-			result = service.events().update(eventId=g_event_id, calendarId=calendar_id, body=data).execute()
+			result = _google_calendar_update(service=service, eventId=g_event_id, calendarId=calendar_id, body=data)
 		else:
 			result = service.events().insert(calendarId=calendar_id, body=data).execute()
-			instance.gcal_key = result['id']
-			instance.save(update_fields=['gcal_key'])
+		instance.gcal_key = result['id']
+		instance.save(update_fields=['gcal_key'])
 	else:
 		if g_event_id:
 			service.events().delete(eventId=g_event_id, calendarId=old_calendar_id).execute()

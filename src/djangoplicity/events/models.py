@@ -182,7 +182,8 @@ def event_post_save(sender, instance, **kwargs):
 	update_fields = kwargs['update_fields']
 	if not update_fields or not(len(update_fields)==1 and 'gcal_key' in update_fields):
 		# don't sync if we're only saving the 'gcal_key'
-		tasks.google_calendar_sync.delay(instance)
+		# tasks.google_calendar_sync.delay(instance)
+		tasks.google_calendar_sync.delay(instance.id, instance._old_audience)
 
 @receiver(post_delete, sender=Event)
 def event_post_delete(sender, instance, **kwargs):

@@ -7,16 +7,16 @@
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #
-#    * Redistributions of source code must retain the above copyright
-#      notice, this list of conditions and the following disclaimer.
+#	* Redistributions of source code must retain the above copyright
+#	  notice, this list of conditions and the following disclaimer.
 #
-#    * Redistributions in binary form must reproduce the above copyright
-#      notice, this list of conditions and the following disclaimer in the
-#      documentation and/or other materials provided with the distribution.
+#	* Redistributions in binary form must reproduce the above copyright
+#	  notice, this list of conditions and the following disclaimer in the
+#	  documentation and/or other materials provided with the distribution.
 #
-#    * Neither the name of the European Southern Observatory nor the names
-#      of its contributors may be used to endorse or promote products derived
-#      from this software without specific prior written permission.
+#	* Neither the name of the European Southern Observatory nor the names
+#	  of its contributors may be used to endorse or promote products derived
+#	  from this software without specific prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY ESO ``AS IS'' AND ANY EXPRESS OR IMPLIED
 # WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -72,7 +72,7 @@ class EventSeriesAdmin( BaseAdmin ):
 class EventAdmin( DjangoplicityModelAdmin ):
 	list_display = ( 'title', 'speaker', 'start_date', 'end_date', 'location', 'series', 'type', 'audience', 'published', )
 	list_filter = ( 'last_modified', 'published', 'type', 'audience', 'location', 'location__site' )
-	list_editable = ( 'series', 'type', 'audience', 'location', )
+	list_editable = ( 'series', 'type', 'audience', )
 	search_fields = ( 'title', 'speaker', 'location__name', 'series__name', 'type', 'audience', 'affiliation', 'abstract', )
 	richtext_fields = ( 'abstract', )
 	fieldsets = (
@@ -83,6 +83,23 @@ class EventAdmin( DjangoplicityModelAdmin ):
 	readonly_fields = ( 'last_modified', 'created', )
 	raw_id_fields = ( 'image', )
 	ordering = ('-start_date',)
+
+	def queryset(self, request):
+		return super(EventAdmin, self).queryset(request).select_related('location__site')
+
+	def formfield_for_dbfield(self, db_field, **kwargs):
+		'''
+		Cache the series choices to speed up admin list view
+		'''
+		request = kwargs['request']
+		formfield = super(EventAdmin, self).formfield_for_dbfield(db_field, **kwargs)
+		if db_field.name == 'series':
+			series_choices_cache = getattr(request, 'series_choices_cache', None)
+			if series_choices_cache is not None:
+				formfield.choices = series_choices_cache
+			else:
+				request.series_choices_cache = formfield.choices
+		return formfield
 
 
 def register_with_admin( admin_site ):

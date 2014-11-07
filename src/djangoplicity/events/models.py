@@ -42,24 +42,29 @@ from djangoplicity.media.models import Image
 from pytz import all_timezones
 from djangoplicity.utils.datetimes import timezone
 from django.conf import settings
-from django.db.models.signals import post_init, pre_save, post_save, post_delete
+from django.db.models.signals import post_init, post_save, post_delete
 from django.dispatch import receiver
+
+from django_countries.fields import CountryField
 
 from djangoplicity.events import tasks
 
 
 EVENT_TYPES = (
-	( 'C', 'Conference' ),
-	( 'E', 'Event' ),
-	( 'M', 'Meeting' ),
-	( 'T', 'Talk' ),
-	( 'W', 'Workshop' ),
+	( 'CO', 'Conference' ),
+	( 'EV', 'Event' ),
+	( 'EX', 'Exhibitions' ),
+	( 'ME', 'Meeting' ),
+	( 'PE', 'Press Event' ),
+	( 'TA', 'Talk' ),
+	( 'WO', 'Workshop' ),
 )
 
 AUDIENCE_TYPES = (
+	( 'I', 'Internal' ),
 	( 'P', 'Public' ),
 	( 'S', 'Science' ),
-	( 'I', 'Internal' ),
+	( 'SI', 'Science Internal' ),
 )
 
 EVENTSITE_TZS = [( tz, tz ) for tz in all_timezones]
@@ -70,6 +75,7 @@ class EventSite( models.Model ):
 	name = models.CharField( max_length=255 )
 	slug = models.SlugField()
 	timezone = models.CharField( max_length=40, default='Europe/Berlin', choices=EVENTSITE_TZS )
+	country = CountryField()
 
 	def __unicode__( self ):
 		return self.name
@@ -113,8 +119,8 @@ class Event( archives.ArchiveModel, models.Model ):
 	end_date = models.DateTimeField()
 	location = models.ForeignKey( EventLocation, blank=True, null=True )
 	series = models.ForeignKey( EventSeries, blank=True, null=True )
-	type = models.CharField( max_length=1, db_index=True, choices=EVENT_TYPES, default='T', help_text="The event and meeting type is used to control where the event is displayed on the website." )
-	audience = models.CharField( max_length=1, db_index=True, choices=AUDIENCE_TYPES, default='P', help_text="The event and meeting audience is used to control which audience is targetted." )
+	type = models.CharField( max_length=2, db_index=True, choices=EVENT_TYPES, default='T', help_text="The event and meeting type is used to control where the event is displayed on the website." )
+	audience = models.CharField( max_length=2, db_index=True, choices=AUDIENCE_TYPES, default='P', help_text="The event and meeting audience is used to control which audience is targetted." )
 	title = models.CharField( max_length=255 )
 	speaker = models.CharField( max_length=255, blank=True )
 	affiliation = models.CharField( max_length=255, blank=True, help_text="Affiliation of the speaker - please keep short if possible." )
@@ -177,15 +183,16 @@ def event_post_init(sender, instance, **kwargs):
 	# storing these values for use in post_save
 	instance._old_audience = instance.audience
 
+
 @receiver(post_save, sender=Event)
 def event_post_save(sender, instance, **kwargs):
 	update_fields = kwargs['update_fields']
-	if not update_fields or not(len(update_fields)==1 and 'gcal_key' in update_fields):
+	if not update_fields or not(len(update_fields) == 1 and 'gcal_key' in update_fields):
 		# don't sync if we're only saving the 'gcal_key'
 		# tasks.google_calendar_sync.delay(instance)
 		tasks.google_calendar_sync.delay(instance.id, instance._old_audience)
 
+
 @receiver(post_delete, sender=Event)
 def event_post_delete(sender, instance, **kwargs):
 	tasks.google_calendar_delete.delay(instance)
-

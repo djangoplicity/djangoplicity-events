@@ -36,6 +36,7 @@ from djangoplicity.contrib.admin import DjangoplicityModelAdmin
 from djangoplicity.events.models import Event, EventLocation, EventSeries, \
 	EventSite
 
+
 class EventAdminForm(forms.ModelForm):
 	class Meta:
 		model = Event
@@ -71,9 +72,9 @@ class EventLocationAdmin( BaseAdmin ):
 
 
 class EventSiteAdmin( BaseAdmin ):
-	list_display = ( 'id', 'name', 'slug', 'timezone' )
-	list_editable = ( 'name', 'slug', 'timezone' )
-	search_fields = ( 'name', 'slug', 'timezone' )
+	list_display = ( 'id', 'name', 'slug', 'timezone', 'country' )
+	list_editable = ( 'name', 'slug', 'timezone', 'country' )
+	search_fields = ( 'name', 'slug', 'timezone', 'country' )
 	fieldsets = (
 		( None, { 'fields': ( 'name', 'slug', 'timezone' ) } ),
 	)

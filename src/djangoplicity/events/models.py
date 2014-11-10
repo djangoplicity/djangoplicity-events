@@ -54,6 +54,7 @@ EVENT_TYPES = (
 	( 'C', 'Conference' ),
 	( 'E', 'Event' ),
 	( 'EX', 'Exhibitions' ),
+	( 'L', 'Lecture' ),
 	( 'M', 'Meeting' ),
 	( 'PE', 'Press Event' ),
 	( 'T', 'Talk' ),

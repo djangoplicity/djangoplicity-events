@@ -100,7 +100,7 @@ class EventLocation( models.Model ):
 	""" Defines a room at a given site """
 	name = models.CharField( max_length=255 )
 	slug = models.SlugField()
-	country = CountryField(default='de')
+	country = CountryField(default='DE')
 	site = models.ForeignKey( EventSite, blank=True, null=True )
 
 	def __unicode__( self ):

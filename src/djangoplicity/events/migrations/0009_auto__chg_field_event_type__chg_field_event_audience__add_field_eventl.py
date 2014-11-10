@@ -14,8 +14,8 @@ class Migration(SchemaMigration):
 
         # Changing field 'Event.audience'
         db.alter_column(u'events_event', 'audience', self.gf('django.db.models.fields.CharField')(max_length=2))
-        # Adding field 'EventSite.country'
-        db.add_column(u'events_eventsite', 'country',
+        # Adding field 'EventLocation.country'
+        db.add_column(u'events_eventlocation', 'country',
                       self.gf('django_countries.fields.CountryField')(default='de', max_length=2),
                       keep_default=False)
 
@@ -27,8 +27,8 @@ class Migration(SchemaMigration):
 
         # Changing field 'Event.audience'
         db.alter_column(u'events_event', 'audience', self.gf('django.db.models.fields.CharField')(max_length=1))
-        # Deleting field 'EventSite.country'
-        db.delete_column(u'events_eventsite', 'country')
+        # Deleting field 'EventLocation.country'
+        db.delete_column(u'events_eventlocation', 'country')
 
 
     models = {
@@ -56,6 +56,7 @@ class Migration(SchemaMigration):
         },
         u'events.eventlocation': {
             'Meta': {'ordering': "('site__name', 'name')", 'object_name': 'EventLocation'},
+            'country': ('django_countries.fields.CountryField', [], {'max_length': '2'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'site': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['events.EventSite']", 'null': 'True', 'blank': 'True'}),
@@ -69,7 +70,6 @@ class Migration(SchemaMigration):
         },
         u'events.eventsite': {
             'Meta': {'ordering': "('name',)", 'object_name': 'EventSite'},
-            'country': ('django_countries.fields.CountryField', [], {'max_length': '2'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'slug': ('django.db.models.fields.SlugField', [], {'max_length': '50'}),

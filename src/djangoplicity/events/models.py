@@ -51,13 +51,13 @@ from djangoplicity.events import tasks
 
 
 EVENT_TYPES = (
-	( 'CO', 'Conference' ),
-	( 'EV', 'Event' ),
+	( 'C', 'Conference' ),
+	( 'E', 'Event' ),
 	( 'EX', 'Exhibitions' ),
-	( 'ME', 'Meeting' ),
+	( 'M', 'Meeting' ),
 	( 'PE', 'Press Event' ),
-	( 'TA', 'Talk' ),
-	( 'WO', 'Workshop' ),
+	( 'T', 'Talk' ),
+	( 'W', 'Workshop' ),
 )
 
 AUDIENCE_TYPES = (
@@ -75,7 +75,6 @@ class EventSite( models.Model ):
 	name = models.CharField( max_length=255 )
 	slug = models.SlugField()
 	timezone = models.CharField( max_length=40, default='Europe/Berlin', choices=EVENTSITE_TZS )
-	country = CountryField()
 
 	def __unicode__( self ):
 		return self.name
@@ -101,6 +100,7 @@ class EventLocation( models.Model ):
 	""" Defines a room at a given site """
 	name = models.CharField( max_length=255 )
 	slug = models.SlugField()
+	country = CountryField(default='de')
 	site = models.ForeignKey( EventSite, blank=True, null=True )
 
 	def __unicode__( self ):

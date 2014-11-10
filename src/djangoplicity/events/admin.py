@@ -63,18 +63,18 @@ class BaseAdmin( admin.ModelAdmin ):
 
 
 class EventLocationAdmin( BaseAdmin ):
-	list_display = ( 'id', 'name', 'slug', 'site' )
-	list_editable = ( 'name', 'slug', 'site' )
-	search_fields = ( 'name', 'slug', 'site__name' )
+	list_display = ( 'id', 'name', 'slug', 'country', 'site' )
+	list_editable = ( 'name', 'slug', 'country', 'site' )
+	search_fields = ( 'name', 'slug', 'country', 'site__name' )
 	fieldsets = (
-		( None, { 'fields': ( 'name', 'slug', 'site' ) } ),
+		( None, { 'fields': ( 'name', 'slug', 'country', 'site' ) } ),
 	)
 
 
 class EventSiteAdmin( BaseAdmin ):
-	list_display = ( 'id', 'name', 'slug', 'timezone', 'country' )
-	list_editable = ( 'name', 'slug', 'timezone', 'country' )
-	search_fields = ( 'name', 'slug', 'timezone', 'country' )
+	list_display = ( 'id', 'name', 'slug', 'timezone' )
+	list_editable = ( 'name', 'slug', 'timezone' )
+	search_fields = ( 'name', 'slug', 'timezone' )
 	fieldsets = (
 		( None, { 'fields': ( 'name', 'slug', 'timezone' ) } ),
 	)

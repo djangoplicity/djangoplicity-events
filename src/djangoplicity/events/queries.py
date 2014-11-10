@@ -71,7 +71,7 @@ class SiteQuery( ForeignKeyQuery ):
 		( qs, query_data ) = super( SiteQuery, self ).queryset( model, options, request, **kwargs )
 
 		# Possible get parameters for the site_query
-		type = self._sanitize_slug( request.GET.get( 'type', '' ) )
+		type = [ self._sanitize_slug(t).upper() for t in request.GET.getlist( 'type', ''  ) ]
 		series = self._sanitize_slug( request.GET.get( 'series', '' ) )
 		calendar = request.GET.get( 'calendar', None )  # 0 for past, 1 for future
 		year = request.GET.get( 'year', None )
@@ -82,7 +82,7 @@ class SiteQuery( ForeignKeyQuery ):
 			upcoming = None
 
 		if type:
-			qs = qs.filter( type=type.upper() )
+			qs = qs.filter( type__in=type )
 		if series:
 			qs = qs.filter( series__slug=series )
 		if upcoming is not None:

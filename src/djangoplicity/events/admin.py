@@ -101,7 +101,7 @@ class EventAdmin( DjangoplicityModelAdmin ):
 	ordering = ('-start_date',)
 
 	def queryset(self, request):
-		return super(EventAdmin, self).queryset(request).select_related('location__site')
+		return super(EventAdmin, self).queryset(request).select_related('location__site', 'series')
 
 	def formfield_for_dbfield(self, db_field, **kwargs):
 		'''

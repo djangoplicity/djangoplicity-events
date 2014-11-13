@@ -88,7 +88,7 @@ class SiteQuery( ForeignKeyQuery ):
 			qs = qs.filter( series__slug=series )
 		if audience:
 			qs = qs.filter( audience__in=audience )
-		if upcoming is not None:
+		if upcoming is not None and year is None:
 			if upcoming == 0:
 				qs = qs.filter( Q( end_date__lte=datetime.now(), end_date__isnull=False ) | Q( start_date__lte=datetime.now(), end_date__isnull=True ) )
 			elif upcoming == 1:
@@ -150,7 +150,8 @@ class AllEventsQuery( AllPublicQuery ):
 			qs = qs.filter( series__slug=series )
 		if audience:
 			qs = qs.filter( audience__in=audience )
-		if upcoming is not None:
+		if upcoming is not None and year is None:
+			# We only filter by upcoming is year is not set
 			if upcoming == 0:
 				qs = qs.filter( Q( end_date__lte=datetime.now(), end_date__isnull=False ) | Q( start_date__lte=datetime.now(), end_date__isnull=True ) )
 			elif upcoming == 1:

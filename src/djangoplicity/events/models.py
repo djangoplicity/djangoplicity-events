@@ -105,10 +105,7 @@ class EventLocation( models.Model ):
 	site = models.ForeignKey( EventSite, blank=True, null=True )
 
 	def __unicode__( self ):
-		if self.site:
-			return "%s, %s" % ( self.name, unicode( self.site ) )
-		else:
-			return self.name
+		return self.name
 
 	class Meta:
 		ordering = ('site__name', 'name')

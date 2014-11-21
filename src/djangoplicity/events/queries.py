@@ -97,7 +97,7 @@ class SiteQuery( ForeignKeyQuery ):
 			qs = qs.filter( Q( end_date__gte=( datetime.now() - timedelta( weeks=8 ) ), end_date__isnull=False ) | Q( start_date__gte=( datetime.now() - timedelta( weeks=8 ) ), end_date__isnull=True ) )
 
 		if year:
-			qs = qs.filter(start_date__year=year)
+			qs = qs.filter(start_date__year=year, start_date__lte=datetime.now())
 
 		return ( qs, query_data )
 
@@ -160,6 +160,6 @@ class AllEventsQuery( AllPublicQuery ):
 			qs = qs.filter( Q( end_date__gte=( datetime.now() - timedelta( weeks=8 ) ), end_date__isnull=False ) | Q( start_date__gte=( datetime.now() - timedelta( weeks=8 ) ), end_date__isnull=True ) )
 
 		if year:
-			qs = qs.filter(start_date__year=year)
+			qs = qs.filter(start_date__year=year, start_date__lte=datetime.now())
 
 		return ( qs, query_data )

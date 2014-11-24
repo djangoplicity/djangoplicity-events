@@ -37,28 +37,28 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 
 
-class SiteQuery( ForeignKeyQuery ):
+class SiteQuery(ForeignKeyQuery):
 	"""
 	Archive query for filtering events by location site (e.g. ESO Garching)
 	"""
 
-	def __init__( self, *args, **kwargs ):
-		super( SiteQuery, self ).__init__( 'location__site__slug', *args, **kwargs )
+	def __init__(self, *args, **kwargs):
+		super(SiteQuery, self).__init__('location__site__slug', *args, **kwargs)
 
-	def _sanitize_slug( self, value ):
+	def _sanitize_slug(self, value):
 		"""
 		Make sure a request input value is actually slug. If not,
 		the just return an empty string.
 		"""
 		if value:
 			try:
-				validators.validate_slug( value )
+				validators.validate_slug(value)
 				return value
 			except ValidationError:
 				pass
 		return ''
 
-	def queryset( self, model, options, request, **kwargs ):
+	def queryset(self, model, options, request, **kwargs):
 		"""
 		Allow extra get parameters to filter list of shown items.
 
@@ -68,59 +68,62 @@ class SiteQuery( ForeignKeyQuery ):
 		- calendar: return only events no more than 8 weeks in the past and all in t
 		- year: return only events from the given year
 		"""
-		( qs, query_data ) = super( SiteQuery, self ).queryset( model, options, request, **kwargs )
+		(qs, query_data) = super(SiteQuery, self).queryset(model, options, request, **kwargs)
 
 		# Possible get parameters for the site_query
-		type = [ self._sanitize_slug(t).upper() for t in request.GET.getlist( 'type', ''  ) ]
-		series = self._sanitize_slug( request.GET.get( 'series', '' ) )
-		audience = [ self._sanitize_slug(t).upper() for t in request.GET.getlist( 'audience', ''  ) ]
-		calendar = request.GET.get( 'calendar', None )  # 0 for past, 1 for future
-		year = request.GET.get( 'year', None )
+		type = [ self._sanitize_slug(t).upper() for t in request.GET.getlist('type', '') ]
+		series = self._sanitize_slug(request.GET.get('series', ''))
+		audience = [ self._sanitize_slug(t).upper() for t in request.GET.getlist('audience', '') ]
+		calendar = request.GET.get('calendar', None)  # 0 for past, 1 for future
+		year = request.GET.get('year', None)
+		video_only = 'video' in request.GET
 
 		try:
-			upcoming = int( request.GET.get( 'upcoming', None ) )  # 0 for past, 1 for future
+			upcoming = int(request.GET.get('upcoming', None))  # 0 for past, 1 for future
 		except (ValueError, TypeError):
 			upcoming = None
 
 		if type:
-			qs = qs.filter( type__in=type )
+			qs = qs.filter(type__in=type)
 		if series:
-			qs = qs.filter( series__slug=series )
+			qs = qs.filter(series__slug=series)
 		if audience:
-			qs = qs.filter( audience__in=audience )
+			qs = qs.filter(audience__in=audience)
 		if upcoming is not None and year is None:
 			if upcoming == 0:
-				qs = qs.filter( Q( end_date__lte=datetime.now(), end_date__isnull=False ) | Q( start_date__lte=datetime.now(), end_date__isnull=True ) )
+				qs = qs.filter(Q(end_date__lte=datetime.now(), end_date__isnull=False) | Q(start_date__lte=datetime.now(), end_date__isnull=True))
 			elif upcoming == 1:
-				qs = qs.filter( Q( end_date__gte=datetime.now(), end_date__isnull=False ) | Q( start_date__gte=datetime.now(), end_date__isnull=True ) )
+				qs = qs.filter(Q(end_date__gte=datetime.now(), end_date__isnull=False) | Q(start_date__gte=datetime.now(), end_date__isnull=True))
 		if calendar and upcoming is None:
-			qs = qs.filter( Q( end_date__gte=( datetime.now() - timedelta( weeks=8 ) ), end_date__isnull=False ) | Q( start_date__gte=( datetime.now() - timedelta( weeks=8 ) ), end_date__isnull=True ) )
+			qs = qs.filter(Q(end_date__gte=(datetime.now() - timedelta(weeks=8)), end_date__isnull=False) | Q(start_date__gte=(datetime.now() - timedelta(weeks=8)), end_date__isnull=True))
+		if video_only:
+			qs = qs.exclude(video_url='')
 
 		if year:
 			qs = qs.filter(start_date__year=year, start_date__lte=datetime.now())
 
-		return ( qs, query_data )
+		return (qs, query_data)
 
 
-class AllEventsQuery( AllPublicQuery ):
+class AllEventsQuery(AllPublicQuery):
 	"""
 	Archive query for filtering events by location site (e.g. ESO Garching)
 	"""
 
-	def _sanitize_slug( self, value ):
+	def _sanitize_slug(self, value):
 		"""
 		Make sure a request input value is actually slug. If not,
 		the just return an empty string.
 		"""
 		if value:
 			try:
-				validators.validate_slug( value )
+				validators.validate_slug(value)
 				return value
 			except ValidationError:
 				pass
 		return ''
 
-	def queryset( self, model, options, request, **kwargs ):
+	def queryset(self, model, options, request, **kwargs):
 		"""
 		Allow extra get parameters to filter list of shown items.
 
@@ -130,36 +133,39 @@ class AllEventsQuery( AllPublicQuery ):
 		- calendar: return only events no more than 8 weeks in the past and all in t
 		- year: return only events from the given year
 		"""
-		( qs, query_data ) = super( AllEventsQuery, self ).queryset( model, options, request, **kwargs )
+		(qs, query_data) = super(AllEventsQuery, self).queryset(model, options, request, **kwargs)
 
 		# Possible get parameters for the site_query
-		type = [ self._sanitize_slug(t).upper() for t in request.GET.getlist( 'type', ''  ) ]
-		series = self._sanitize_slug( request.GET.get( 'series', '' ) )
-		audience = [ self._sanitize_slug(t).upper() for t in request.GET.getlist( 'audience', ''  ) ]
-		calendar = request.GET.get( 'calendar', None )  # 0 for past, 1 for future
-		year = request.GET.get( 'year', None )
+		type = [ self._sanitize_slug(t).upper() for t in request.GET.getlist('type', '') ]
+		series = self._sanitize_slug(request.GET.get('series', ''))
+		audience = [ self._sanitize_slug(t).upper() for t in request.GET.getlist('audience', '') ]
+		calendar = request.GET.get('calendar', None)  # 0 for past, 1 for future
+		year = request.GET.get('year', None)
+		video_only = 'video' in request.GET
 
 		try:
-			upcoming = int( request.GET.get( 'upcoming', None ) )  # 0 for past, 1 for future
+			upcoming = int(request.GET.get('upcoming', None))  # 0 for past, 1 for future
 		except (ValueError, TypeError):
 			upcoming = None
 
 		if type:
-			qs = qs.filter( type__in=type )
+			qs = qs.filter(type__in=type)
 		if series:
-			qs = qs.filter( series__slug=series )
+			qs = qs.filter(series__slug=series)
 		if audience:
-			qs = qs.filter( audience__in=audience )
+			qs = qs.filter(audience__in=audience)
 		if upcoming is not None and year is None:
 			# We only filter by upcoming is year is not set
 			if upcoming == 0:
-				qs = qs.filter( Q( end_date__lte=datetime.now(), end_date__isnull=False ) | Q( start_date__lte=datetime.now(), end_date__isnull=True ) )
+				qs = qs.filter(Q(end_date__lte=datetime.now(), end_date__isnull=False) | Q(start_date__lte=datetime.now(), end_date__isnull=True))
 			elif upcoming == 1:
-				qs = qs.filter( Q( end_date__gte=datetime.now(), end_date__isnull=False ) | Q( start_date__gte=datetime.now(), end_date__isnull=True ) )
+				qs = qs.filter(Q(end_date__gte=datetime.now(), end_date__isnull=False) | Q(start_date__gte=datetime.now(), end_date__isnull=True))
 		if calendar and upcoming is None:
-			qs = qs.filter( Q( end_date__gte=( datetime.now() - timedelta( weeks=8 ) ), end_date__isnull=False ) | Q( start_date__gte=( datetime.now() - timedelta( weeks=8 ) ), end_date__isnull=True ) )
+			qs = qs.filter(Q(end_date__gte=(datetime.now() - timedelta(weeks=8)), end_date__isnull=False) | Q(start_date__gte=(datetime.now() - timedelta(weeks=8)), end_date__isnull=True))
+		if video_only:
+			qs = qs.exclude(video_url='')
 
 		if year:
 			qs = qs.filter(start_date__year=year, start_date__lte=datetime.now())
 
-		return ( qs, query_data )
+		return (qs, query_data)

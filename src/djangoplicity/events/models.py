@@ -126,6 +126,7 @@ class Event( archives.ArchiveModel, models.Model ):
 	image = models.ForeignKey( Image, blank=True, null=True, help_text="Image id of image to display together with this event." )
 	webpage_url = models.URLField( verbose_name="Webpage URL", blank=True, null=True, max_length=255, help_text="Link to webpage of this event if it exists." )
 	video_url = models.URLField( verbose_name="Video URL", blank=True, null=True, max_length=255, help_text="Link to flash video (.flv) of this event if it exists." )
+	slides_url = models.URLField( verbose_name="Slides URL", blank=True, null=True, max_length=255, help_text="Link to slides for this event if any." )
 	additional_information = models.CharField( max_length=255, blank=True, help_text="Short additional information to be displayed on reception screen." )
 	gcal_key = models.CharField( max_length=255, blank=True, null=True, )
 

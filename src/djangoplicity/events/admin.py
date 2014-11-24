@@ -92,7 +92,7 @@ class EventAdmin( DjangoplicityModelAdmin ):
 	richtext_fields = ( 'abstract', )
 	form = EventAdminForm
 	fieldsets = (
-		( 'Event or meeting', { 'fields': ( 'type', 'series', 'audience', 'title', 'speaker', 'affiliation', 'abstract', 'image', 'webpage_url', 'video_url', 'additional_information' ) } ),
+		( 'Event or meeting', { 'fields': ( 'type', 'series', 'audience', 'title', 'speaker', 'affiliation', 'abstract', 'image', 'webpage_url', 'video_url', 'slides_url', 'additional_information' ) } ),
 		( 'Locaiton and date', { 'fields': ( 'start_date', 'end_date', 'location', ) } ),
 		( 'Publishing', {'fields': ( 'published', 'last_modified', 'created' ), } ),
 	)

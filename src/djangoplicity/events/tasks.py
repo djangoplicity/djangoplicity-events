@@ -120,10 +120,11 @@ def google_calendar_sync(instance_id, _old_audience):
 			instance.save(update_fields=['gcal_key'])
 
 @task()
-def google_calendar_delete(instance):
+def google_calendar_delete(eventId, audience):
 	service = _google_calendar_service()
-	calendarId = settings.GCAL_CALENDAR[instance.audience]
-	eventId = instance.gcal_key
+	# calendarId = settings.GCAL_CALENDAR[instance.audience]
+	# eventId = instance.gcal_key
+	calendarId = settings.GCAL_CALENDAR[audience]
 	if eventId:
 		result = service.events().delete(eventId=eventId, calendarId=calendarId).execute()
 

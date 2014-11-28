@@ -30,6 +30,8 @@
 # POSSIBILITY OF SUCH DAMAGE
 #
 
+from djangoplicity.utils.html_to_text import DjangoplicityHTML2Text
+
 from celery.task import task
 
 from django.conf import settings
@@ -103,10 +105,14 @@ def google_calendar_sync(instance_id, _old_audience):
 	data['start'] = {'dateTime': instance.start_date_tz.isoformat(), 'timeZone': instance.start_date_tz.tzinfo.zone }
 	data['end'] = {'dateTime': instance.end_date_tz.isoformat(), 'timeZone': instance.end_date_tz.tzinfo.zone }
 	data['transparency'] = 'transparent'
+
 	if instance.location:
 		data['location'] = unicode(instance.location)
-	# if instance.abstract:
-	# 	data['description'] = instance.abstract
+
+	if instance.abstract:
+		# Convert the HTML to text:
+		h2t = DjangoplicityHTML2Text()
+		data['description'] = h2t.handle(instance.abstract.replace('&nbsp;', ' '))
 
 	if instance.published:
 		if eventId:

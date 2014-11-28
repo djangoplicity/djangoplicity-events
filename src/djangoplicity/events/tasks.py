@@ -14,7 +14,7 @@
 #      notice, this list of conditions and the following disclaimer in the
 #      documentation and/or other materials provided with the distribution.
 #
-#    * Neither the name of the European Southern Observatory nor the names 
+#    * Neither the name of the European Southern Observatory nor the names
 #      of its contributors may be used to endorse or promote products derived
 #      from this software without specific prior written permission.
 #
@@ -48,6 +48,7 @@ def _google_calendar_service():
 	service = build(serviceName='calendar', version='v3', http=http_auth)
 	return service
 
+
 def _google_calendar_update(service, eventId, calendarId, oldCalendarId, body):
 	from googleapiclient.http import HttpError
 	if eventId:
@@ -70,6 +71,7 @@ def _google_calendar_update(service, eventId, calendarId, oldCalendarId, body):
 		result = service.events().insert(calendarId=calendarId, body=body).execute()
 	return result
 
+
 @task()
 # def google_calendar_sync(instance):
 def google_calendar_sync(instance_id, _old_audience):
@@ -79,7 +81,6 @@ def google_calendar_sync(instance_id, _old_audience):
 	service = _google_calendar_service()
 	calendarId = settings.GCAL_CALENDAR[instance.audience]
 	eventId = instance.gcal_key
-
 
 	## code below retreives oldCalendarId when this function is called on pre_save
 	# get previous calendar id; we might need to move the event to another calendar
@@ -93,14 +94,15 @@ def google_calendar_sync(instance_id, _old_audience):
 	# code below retreives oldCalendarId when this function is called on post_save
 	# _old_audience is saved on post_init
 	if eventId:
-		# oldCalendarId = settings.GCAL_CALENDAR[instance._old_audience] 
-		oldCalendarId = settings.GCAL_CALENDAR[_old_audience] 
+		# oldCalendarId = settings.GCAL_CALENDAR[instance._old_audience]
+		oldCalendarId = settings.GCAL_CALENDAR[_old_audience]
 
 	# create the event data
 	data = {}
 	data['summary'] = instance.title
 	data['start'] = {'dateTime': instance.start_date_tz.isoformat(), 'timeZone': instance.start_date_tz.tzinfo.zone }
 	data['end'] = {'dateTime': instance.end_date_tz.isoformat(), 'timeZone': instance.end_date_tz.tzinfo.zone }
+	data['transparency'] = 'transparent'
 	if instance.location:
 		data['location'] = unicode(instance.location)
 	# if instance.abstract:
@@ -119,6 +121,7 @@ def google_calendar_sync(instance_id, _old_audience):
 			instance.gcal_key = None
 			instance.save(update_fields=['gcal_key'])
 
+
 @task()
 def google_calendar_delete(eventId, audience):
 	service = _google_calendar_service()
@@ -127,6 +130,3 @@ def google_calendar_delete(eventId, audience):
 	calendarId = settings.GCAL_CALENDAR[audience]
 	if eventId:
 		result = service.events().delete(eventId=eventId, calendarId=calendarId).execute()
-
-
-

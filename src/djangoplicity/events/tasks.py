@@ -83,7 +83,7 @@ def _get_calendar(event):
 	'''
 	calendarId = None
 	try:
-		event_site = event.location.site
+		event_site = event.location.site.slug
 	except AttributeError:
 		event_site = ''
 
@@ -99,7 +99,7 @@ def _get_calendar(event):
 
 @task()
 # def google_calendar_sync(instance):
-def google_calendar_sync(instance_id, _old_audience):
+def google_calendar_sync(instance_id, _old_audience, _old_site_slug):
 	from djangoplicity.events.models import Event
 	instance = Event.objects.get(id=instance_id)
 	service = _google_calendar_service()
@@ -119,6 +119,13 @@ def google_calendar_sync(instance_id, _old_audience):
 	if eventId:
 		# oldCalendarId = settings.GCAL_CALENDAR[instance._old_audience]
 		oldCalendarId = settings.GCAL_CALENDAR[_old_audience]
+
+		for site, calendar in settings.GCAL_CALENDAR[_old_audience].items():
+			if site == _old_site_slug:
+				oldCalendarId = calendar
+
+		if not oldCalendarId and 'default' in settings.GCAL_CALENDAR[_old_audience]:
+			oldCalendarId = settings.GCAL_CALENDAR[_old_audience]['default']
 
 	# create the event data
 	data = {}

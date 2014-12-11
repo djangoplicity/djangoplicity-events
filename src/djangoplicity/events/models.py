@@ -181,6 +181,10 @@ class Event( archives.ArchiveModel, models.Model ):
 def event_post_init(sender, instance, **kwargs):
 	# storing these values for use in post_save
 	instance._old_audience = instance.audience
+	try:
+		instance._old_site_slug = instance.location.site.slug
+	except AttributeError:
+		instance._old_site_slug = ''
 
 
 @receiver(post_save, sender=Event)
@@ -189,7 +193,7 @@ def event_post_save(sender, instance, **kwargs):
 	if not update_fields or not(len(update_fields) == 1 and 'gcal_key' in update_fields):
 		# don't sync if we're only saving the 'gcal_key'
 		# tasks.google_calendar_sync.delay(instance)
-		tasks.google_calendar_sync.delay(instance.id, instance._old_audience)
+		tasks.google_calendar_sync.delay(instance.id, instance._old_audience, instance._old_site_slug)
 
 
 @receiver(post_delete, sender=Event)

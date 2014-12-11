@@ -38,6 +38,9 @@ from django.conf import settings
 from oauth2client.client import SignedJwtAssertionCredentials
 from httplib2 import Http
 from apiclient.discovery import build
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def _google_calendar_service():
@@ -135,18 +138,22 @@ def google_calendar_sync(instance_id, _old_audience):
 	# Get calendar to update
 	calendarId = _get_calendar(instance)
 	if not calendarId:
+		logger.info('Couldn\'t find calendar for event "%s" (%d)', instance.title, instance.id)
 		return
 
 	if instance.published:
 		if eventId:
 			result = _google_calendar_update(service=service, eventId=eventId, calendarId=calendarId, oldCalendarId=oldCalendarId, body=data)
+			logger.info('Will update "%s" (%d) in calendar: %s', instance.title, instance.id, calendarId)
 		else:
 			result = service.events().insert(calendarId=calendarId, body=data).execute()
+			logger.info('Will add "%s" (%d) to calendar: %s', instance.title, instance.id, calendarId)
 		instance.gcal_key = result['id']
 		instance.save(update_fields=['gcal_key'])
 	else:
 		if eventId:
 			service.events().delete(eventId=eventId, calendarId=oldCalendarId).execute()
+			logger.info('Will delete "%s" (%d) from calendar: %s', instance.title, instance.id, calendarId)
 			instance.gcal_key = None
 			instance.save(update_fields=['gcal_key'])
 
@@ -162,3 +169,4 @@ def google_calendar_delete(instance_id, audience):
 
 	if instance.gcal_key:
 		result = service.events().delete(eventId=instance.gcal_key, calendarId=calendarId).execute()
+		logger.info('Will delete "%s" (%d) from calendar: %s', instance.title, instance.id, calendarId)

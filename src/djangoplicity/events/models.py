@@ -194,4 +194,4 @@ def event_post_save(sender, instance, **kwargs):
 
 @receiver(post_delete, sender=Event)
 def event_post_delete(sender, instance, **kwargs):
-	tasks.google_calendar_delete.delay(instance.gcal_key, instance.audience)
+	tasks.google_calendar_delete.delay(instance.id, instance.audience)

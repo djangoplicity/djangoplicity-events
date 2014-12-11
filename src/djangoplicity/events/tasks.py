@@ -31,6 +31,7 @@
 #
 
 from djangoplicity.utils.html_to_text import DjangoplicityHTML2Text
+from djangoplicity.events.models import Event
 
 from celery.task import task
 
@@ -74,14 +75,31 @@ def _google_calendar_update(service, eventId, calendarId, oldCalendarId, body):
 	return result
 
 
+def _get_calendar(event):
+	'''
+	Return the calendarId for the given event based on its audience and site
+	'''
+	calendarId = None
+	try:
+		event_site = event.location.site
+	except AttributeError:
+		event_site = ''
+
+	for site, calendar in settings.GCAL_CALENDAR[event.audience]:
+		if site == event_site:
+			calendarId = calendar
+
+	if not calendarId and 'default' in settings.GCAL_CALENDAR[event.audience]:
+		calendarId = settings.GCAL_CALENDAR[event.audience]['default']
+
+	return calendarId
+
+
 @task()
 # def google_calendar_sync(instance):
 def google_calendar_sync(instance_id, _old_audience):
-	from djangoplicity.events.models import Event
-
 	instance = Event.objects.get(id=instance_id)
 	service = _google_calendar_service()
-	calendarId = settings.GCAL_CALENDAR[instance.audience]
 	eventId = instance.gcal_key
 
 	## code below retreives oldCalendarId when this function is called on pre_save
@@ -114,6 +132,11 @@ def google_calendar_sync(instance_id, _old_audience):
 		h2t = DjangoplicityHTML2Text()
 		data['description'] = h2t.handle(instance.abstract.replace('&nbsp;', ' '))
 
+	# Get calendar to update
+	calendarId = _get_calendar(instance)
+	if not calendarId:
+		return
+
 	if instance.published:
 		if eventId:
 			result = _google_calendar_update(service=service, eventId=eventId, calendarId=calendarId, oldCalendarId=oldCalendarId, body=data)
@@ -129,10 +152,12 @@ def google_calendar_sync(instance_id, _old_audience):
 
 
 @task()
-def google_calendar_delete(eventId, audience):
+def google_calendar_delete(instance_id, audience):
+	instance = Event.objects.get(id=instance_id)
 	service = _google_calendar_service()
-	# calendarId = settings.GCAL_CALENDAR[instance.audience]
-	# eventId = instance.gcal_key
-	calendarId = settings.GCAL_CALENDAR[audience]
-	if eventId:
-		result = service.events().delete(eventId=eventId, calendarId=calendarId).execute()
+	calendarId = _get_calendar(instance)
+	if not calendarId:
+		return
+
+	if instance.gcal_key:
+		result = service.events().delete(eventId=instance.gcal_key, calendarId=calendarId).execute()

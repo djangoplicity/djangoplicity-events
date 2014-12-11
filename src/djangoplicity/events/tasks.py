@@ -117,9 +117,6 @@ def google_calendar_sync(instance_id, _old_audience, _old_site_slug):
 	# code below retreives oldCalendarId when this function is called on post_save
 	# _old_audience is saved on post_init
 	if eventId:
-		# oldCalendarId = settings.GCAL_CALENDAR[instance._old_audience]
-		oldCalendarId = settings.GCAL_CALENDAR[_old_audience]
-
 		for site, calendar in settings.GCAL_CALENDAR[_old_audience].items():
 			if site == _old_site_slug:
 				oldCalendarId = calendar
@@ -166,14 +163,19 @@ def google_calendar_sync(instance_id, _old_audience, _old_site_slug):
 
 
 @task()
-def google_calendar_delete(instance_id, audience):
-	from djangoplicity.events.models import Event
-	instance = Event.objects.get(id=instance_id)
+def google_calendar_delete(eventId, audience, site_slug):
 	service = _google_calendar_service()
-	calendarId = _get_calendar(instance)
+
+	for site, calendar in settings.GCAL_CALENDAR[audience].items():
+		if site == site_slug:
+			calendarId = calendar
+
+	if not calendarId and 'default' in settings.GCAL_CALENDAR[audience]:
+		calendarId = settings.GCAL_CALENDAR[audience]['default']
+
 	if not calendarId:
 		return
 
-	if instance.gcal_key:
-		result = service.events().delete(eventId=instance.gcal_key, calendarId=calendarId).execute()
-		logger.info('Will delete "%s" (%d) from calendar: %s', instance.title, instance.id, calendarId)
+	if eventId:
+		result = service.events().delete(eventId=eventId, calendarId=calendarId).execute()
+		logger.info('Will delete "%s" from calendar: %s', eventId, calendarId)

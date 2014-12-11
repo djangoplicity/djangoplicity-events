@@ -198,4 +198,8 @@ def event_post_save(sender, instance, **kwargs):
 
 @receiver(post_delete, sender=Event)
 def event_post_delete(sender, instance, **kwargs):
-	tasks.google_calendar_delete.delay(instance.id, instance.audience)
+	try:
+		site_slug = instance.location.site.slug
+	except AttributeError:
+		site_slug = ''
+	tasks.google_calendar_delete.delay(instance.gcal_key, instance.audience, site_slug)

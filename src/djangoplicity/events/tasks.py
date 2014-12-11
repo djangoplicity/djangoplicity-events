@@ -84,7 +84,7 @@ def _get_calendar(event):
 	except AttributeError:
 		event_site = ''
 
-	for site, calendar in settings.GCAL_CALENDAR[event.audience]:
+	for site, calendar in settings.GCAL_CALENDAR[event.audience].items():
 		if site == event_site:
 			calendarId = calendar
 

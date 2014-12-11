@@ -31,7 +31,6 @@
 #
 
 from djangoplicity.utils.html_to_text import DjangoplicityHTML2Text
-from djangoplicity.events.models import Event
 
 from celery.task import task
 
@@ -98,6 +97,7 @@ def _get_calendar(event):
 @task()
 # def google_calendar_sync(instance):
 def google_calendar_sync(instance_id, _old_audience):
+	from djangoplicity.events.models import Event
 	instance = Event.objects.get(id=instance_id)
 	service = _google_calendar_service()
 	eventId = instance.gcal_key
@@ -153,6 +153,7 @@ def google_calendar_sync(instance_id, _old_audience):
 
 @task()
 def google_calendar_delete(instance_id, audience):
+	from djangoplicity.events.models import Event
 	instance = Event.objects.get(id=instance_id)
 	service = _google_calendar_service()
 	calendarId = _get_calendar(instance)

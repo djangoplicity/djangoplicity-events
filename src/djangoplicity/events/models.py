@@ -151,6 +151,25 @@ class Event( archives.ArchiveModel, models.Model ):
 		else:
 			return formats.date_format( self.start_date )
 
+	def get_calendar(self):
+		'''
+		Return the calendarId for the event based on its audience and site
+		'''
+		calendarId = None
+		try:
+			event_site = self.location.site.slug
+		except AttributeError:
+			event_site = ''
+
+		for site, calendar in settings.GCAL_CALENDAR[self.audience].items():
+			if site == event_site:
+				calendarId = calendar
+
+		if not calendarId and 'default' in settings.GCAL_CALENDAR[self.audience]:
+			calendarId = settings.GCAL_CALENDAR[self.audience]['default']
+
+		return calendarId
+
 	def _get_start_date_tz( self ):
 		return self._get_date_tz( self.start_date )
 
@@ -198,8 +217,5 @@ def event_post_save(sender, instance, **kwargs):
 
 @receiver(post_delete, sender=Event)
 def event_post_delete(sender, instance, **kwargs):
-	try:
-		site_slug = instance.location.site.slug
-	except AttributeError:
-		site_slug = ''
-	tasks.google_calendar_delete.delay(instance.gcal_key, instance.audience, site_slug)
+	calendarId = instance.get_calendar()
+	tasks.google_calendar_delete.delay(instance.gcal_key, calendarId)

@@ -77,26 +77,6 @@ def _google_calendar_update(service, eventId, calendarId, oldCalendarId, body):
 	return result
 
 
-def _get_calendar(event):
-	'''
-	Return the calendarId for the given event based on its audience and site
-	'''
-	calendarId = None
-	try:
-		event_site = event.location.site.slug
-	except AttributeError:
-		event_site = ''
-
-	for site, calendar in settings.GCAL_CALENDAR[event.audience].items():
-		if site == event_site:
-			calendarId = calendar
-
-	if not calendarId and 'default' in settings.GCAL_CALENDAR[event.audience]:
-		calendarId = settings.GCAL_CALENDAR[event.audience]['default']
-
-	return calendarId
-
-
 @task()
 # def google_calendar_sync(instance):
 def google_calendar_sync(instance_id, _old_audience, _old_site_slug):
@@ -140,7 +120,7 @@ def google_calendar_sync(instance_id, _old_audience, _old_site_slug):
 		data['description'] = h2t.handle(instance.abstract.replace('&nbsp;', ' '))
 
 	# Get calendar to update
-	calendarId = _get_calendar(instance)
+	calendarId = instance.get_calendar()
 	if not calendarId:
 		logger.info('Couldn\'t find calendar for event "%s" (%d)', instance.title, instance.id)
 		return
@@ -163,15 +143,8 @@ def google_calendar_sync(instance_id, _old_audience, _old_site_slug):
 
 
 @task()
-def google_calendar_delete(eventId, audience, site_slug):
+def google_calendar_delete(eventId, calendarId):
 	service = _google_calendar_service()
-
-	for site, calendar in settings.GCAL_CALENDAR[audience].items():
-		if site == site_slug:
-			calendarId = calendar
-
-	if not calendarId and 'default' in settings.GCAL_CALENDAR[audience]:
-		calendarId = settings.GCAL_CALENDAR[audience]['default']
 
 	if not calendarId:
 		return

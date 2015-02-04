@@ -107,6 +107,8 @@ def google_calendar_sync(instance_id, _old_audience, _old_site_slug):
 	# create the event data
 	data = {}
 	data['summary'] = instance.title
+	if instance.speaker:
+		data['summary'] = '%s - %s' % (instance.speaker, data['summary'])
 	data['start'] = {'dateTime': instance.start_date_tz.isoformat(), 'timeZone': instance.start_date_tz.tzinfo.zone }
 	data['end'] = {'dateTime': instance.end_date_tz.isoformat(), 'timeZone': instance.end_date_tz.tzinfo.zone }
 	data['transparency'] = 'transparent'

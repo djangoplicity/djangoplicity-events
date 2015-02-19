@@ -45,7 +45,13 @@ class EventAdminForm(forms.ModelForm):
 		cleaned_data = super(EventAdminForm, self).clean()
 		start_date = cleaned_data.get('start_date')
 		end_date = cleaned_data.get('end_date')
-		if end_date < start_date:
+
+		if not start_date:
+			self._errors['start_date'] = self.error_class([u'This field is required'])
+		if not end_date:
+			self._errors['end_date'] = self.error_class([u'This field is required'])
+
+		if start_date and end_date and (end_date < start_date):
 			msg = u'End date should be greater than start date.'
 			self._errors['end_date'] = self.error_class([msg])
 		return cleaned_data

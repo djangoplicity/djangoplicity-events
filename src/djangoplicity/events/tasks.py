@@ -97,6 +97,8 @@ def google_calendar_sync(instance_id, _old_audience, _old_site_slug):
 	# code below retreives oldCalendarId when this function is called on post_save
 	# _old_audience is saved on post_init
 	if eventId:
+		# locate google calendar where the event was previously published
+		oldCalendarId = None
 		for site, calendar in settings.GCAL_CALENDAR[_old_audience].items():
 			if site == _old_site_slug:
 				oldCalendarId = calendar

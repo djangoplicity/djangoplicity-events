@@ -36,7 +36,7 @@ Models for the djangoplicity event app.
 
 from django.db import models
 from django.utils import dateformat, formats
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from djangoplicity import archives
 from djangoplicity.media.models import Image
 from pytz import all_timezones

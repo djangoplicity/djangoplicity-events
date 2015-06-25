@@ -174,5 +174,6 @@ class IndustryEventsQuery(AllEventsQuery):
 	def queryset(self, model, options, request, **kwargs):
 		(qs, query_data) = super(IndustryEventsQuery, self).queryset(model, options, request, **kwargs)
 		qs = qs.filter(Q(series__slug='industry-day') | Q(audience='IN'))
+		qs = qs.order_by('-start_date')
 		return (qs, query_data)
 

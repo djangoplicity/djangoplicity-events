@@ -64,6 +64,7 @@ EVENT_TYPES = (
 AUDIENCE_TYPES = (
 	( 'I', 'Internal' ),
 	( 'P', 'Public' ),
+	( 'IN', 'Industry' ),
 	( 'S', 'Science' ),
 	( 'SI', 'Science Internal' ),
 )

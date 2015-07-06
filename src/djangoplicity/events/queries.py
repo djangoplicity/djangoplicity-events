@@ -83,6 +83,8 @@ class SiteQuery(ForeignKeyQuery):
 		except (ValueError, TypeError):
 			upcoming = None
 
+		qs = qs.select_related('series')
+
 		if type:
 			qs = qs.filter(type__in=type)
 		if series:

@@ -62,9 +62,9 @@ class EventOptions( ArchiveOptions ):
 		industry = IndustryEventsQuery( browsers=( 'html_industry', 'json', 'ical' ), verbose_name = "Industry Events" )
 
 	class Browsers(object):
-		html = ListBrowser( verbose_name='HTML', paginate_by=200 )
-		html_embed = ListBrowser( verbose_name='HTML', paginate_by=200, index_template='index_list_embed.html' )
-		html_conf_embed = ListBrowser( verbose_name='HTML', paginate_by=200, index_template='index_list_embed.html' )
-		html_industry = ListBrowser( verbose_name='HTML', paginate_by=200, index_template='index_list_industry.html' )
+		html = ListBrowser( verbose_name='HTML', paginate_by=1000 )
+		html_embed = ListBrowser( verbose_name='HTML', paginate_by=1000, index_template='index_list_embed.html' )
+		html_conf_embed = ListBrowser( verbose_name='HTML', paginate_by=1000, index_template='index_list_embed.html' )
+		html_industry = ListBrowser( verbose_name='HTML', paginate_by=1000, index_template='index_list_industry.html' )
 		json = SerializationBrowser( serializer=EventSerializer, emitter=JSONEmitter, paginate_by=100, display=False, verbose_name=_( "JSON" ) )
 		ical = SerializationBrowser( serializer=ICalEventSerializer, emitter=ICalEmitter, paginate_by=100, display=True, verbose_name=_( "iCal" ) )

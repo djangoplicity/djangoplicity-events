@@ -14,7 +14,7 @@
 #      notice, this list of conditions and the following disclaimer in the
 #      documentation and/or other materials provided with the distribution.
 #
-#    * Neither the name of the European Southern Observatory nor the names 
+#    * Neither the name of the European Southern Observatory nor the names
 #      of its contributors may be used to endorse or promote products derived
 #      from this software without specific prior written permission.
 #
@@ -31,14 +31,14 @@
 #
 
 """
-Serializers for Event models 
+Serializers for Event models
 """
 
-from djangoplicity.archives.contrib.serialization import Serializer, \
-	Serialization, SimpleSerializer
+from djangoplicity.archives.contrib.serialization import SimpleSerializer
+
 
 class EventSerializer( SimpleSerializer ):
-	fields = ( 
+	fields = (
 		'title',
 		'speaker',
 		'affiliation',
@@ -65,11 +65,11 @@ class EventSerializer( SimpleSerializer ):
 
 class ICalEventSerializer( SimpleSerializer ):
 	"""
-	Serialier responsible for converting events into 
-	iCal data structure. 
+	Serialier responsible for converting events into
+	iCal data structure.
 	"""
-	
-	fields = ( 
+
+	fields = (
 		'summary',
 		'description',
 		'location',
@@ -80,39 +80,39 @@ class ICalEventSerializer( SimpleSerializer ):
 
 	def get_summary_value( self, obj ):
 		return "%s: %s" % ( obj.series, obj.title ) if obj.series else obj.title
-	
+
 	def get_description_value( self, obj ):
 		tmp = [obj.title]
-		
+
 		if obj.additional_information:
 			tmp.append("")
 			tmp.append( obj.additional_information )
-		
+
 		if obj.speaker:
 			if obj.affiliation:
 				tmp.append("")
 				tmp.append( "Speaker: %s (%s)" % (obj.speaker, obj.affiliation) )
 			else:
 				tmp.append("")
-				tmp.append( "Speaker: %s" % obj.speaker ) 
-		
+				tmp.append( "Speaker: %s" % obj.speaker )
+
 		if obj.series:
 			tmp.append( "Series: %s" % obj.series )
-		
+
 		if obj.abstract:
 			tmp.append("")
 			tmp.append( "ABSTRACT: %s" % obj.abstract )
-		
+
 		return "\n".join( tmp )
 
 	def get_location_value( self, obj ):
 		return obj.location
-	
+
 	def get_dtstart_value( self, obj ):
 		return obj.start_date_tz
-	
+
 	def get_dtend_value( self, obj ):
 		return obj.end_date_tz if obj.end_date_tz else obj.start_date_tz
-	
+
 	def get_dtstamp_value( self, obj ):
 		return obj.end_date_tz if obj.end_date_tz else obj.start_date_tz

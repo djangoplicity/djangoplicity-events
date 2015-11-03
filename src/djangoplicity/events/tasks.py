@@ -154,5 +154,5 @@ def google_calendar_delete(eventId, calendarId):
 		return
 
 	if eventId:
-		result = service.events().delete(eventId=eventId, calendarId=calendarId).execute()
+		service.events().delete(eventId=eventId, calendarId=calendarId).execute()
 		logger.info('Will delete "%s" from calendar: %s', eventId, calendarId)

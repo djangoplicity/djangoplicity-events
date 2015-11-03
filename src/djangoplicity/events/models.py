@@ -36,17 +36,17 @@ Models for the djangoplicity event app.
 
 from django.db import models
 from django.utils import dateformat, formats
-from django.utils.translation import ugettext as _
-from djangoplicity import archives
-from djangoplicity.media.models import Image
-from pytz import all_timezones
+from django.utils.translation import ugettext_lazy as _
 from djangoplicity.utils.datetimes import timezone
 from django.conf import settings
 from django.db.models.signals import post_init, post_save, post_delete
 from django.dispatch import receiver
-
+from django.utils.timezone import make_aware
 from django_countries.fields import CountryField
+import pytz
 
+from djangoplicity import archives
+from djangoplicity.media.models import Image
 from djangoplicity.events import tasks
 
 
@@ -64,11 +64,12 @@ EVENT_TYPES = (
 AUDIENCE_TYPES = (
 	( 'I', 'Internal' ),
 	( 'P', 'Public' ),
+	( 'IN', 'Industry' ),
 	( 'S', 'Science' ),
 	( 'SI', 'Science Internal' ),
 )
 
-EVENTSITE_TZS = [( tz, tz ) for tz in all_timezones]
+EVENTSITE_TZS = [( tz, tz ) for tz in pytz.all_timezones]
 
 
 class EventSite( models.Model ):
@@ -136,6 +137,16 @@ class Event( archives.ArchiveModel, models.Model ):
 	def _get_date_tz( self, date ):
 		if not date:
 			return None
+		# Datetimes are currently "naive", and stored in the DB using the default
+		# TIME_ZONE: Europe/Berlin, this works fine from Garching as events are
+		# always added in the DB in the local timezon, but from Chile the dates
+		# are entered as Chile local time and saved as Garching time.
+		# So if we have a site timezone for the event which is different than
+		# the local one we first convert it to a local time aware date
+		if self.location and self.location.site and self.location.site.timezone \
+			and self.location.site.timezone != settings.TIME_ZONE:
+			date = make_aware(self.start_date, timezone=pytz.timezone(self.location.site.timezone))
+
 		return timezone( date, tz=self.location.site.timezone if self.location and self.location.site and self.location.site.timezone else settings.TIME_ZONE )
 
 	def get_dates( self ):

@@ -83,6 +83,8 @@ class SiteQuery(ForeignKeyQuery):
 		except (ValueError, TypeError):
 			upcoming = None
 
+		qs = qs.select_related('series')
+
 		if type:
 			qs = qs.filter(type__in=type)
 		if series:
@@ -169,3 +171,11 @@ class AllEventsQuery(AllPublicQuery):
 			qs = qs.filter(start_date__year=year, start_date__lte=datetime.now())
 
 		return (qs, query_data)
+
+class IndustryEventsQuery(AllEventsQuery):
+	def queryset(self, model, options, request, **kwargs):
+		(qs, query_data) = super(IndustryEventsQuery, self).queryset(model, options, request, **kwargs)
+		qs = qs.filter(Q(series__slug='industry-day') | Q(audience='IN'))
+		qs = qs.order_by('-start_date')
+		return (qs, query_data)
+

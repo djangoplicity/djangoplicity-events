@@ -14,7 +14,7 @@
 #      notice, this list of conditions and the following disclaimer in the
 #      documentation and/or other materials provided with the distribution.
 #
-#    * Neither the name of the European Southern Observatory nor the names 
+#    * Neither the name of the European Southern Observatory nor the names
 #      of its contributors may be used to endorse or promote products derived
 #      from this software without specific prior written permission.
 #
@@ -30,24 +30,26 @@
 # POSSIBILITY OF SUCH DAMAGE
 #
 
-import os
 from setuptools import setup, find_packages
 
 setup(
-	name = 'djangoplicity-events',
-	version = '0.1.0',
-	packages = find_packages('src'),
-	package_dir = { '': 'src' },
-	include_package_data = True,
-	zip_safe = False,
-	namespace_packages = ['djangoplicity'],
-    install_requires = ['setuptools'],
-	
+	name='djangoplicity-events',
+	version='0.1.0',
+	packages=find_packages('src'),
+	package_dir={ '': 'src' },
+	include_package_data=True,
+	zip_safe=False,
+	namespace_packages=['djangoplicity'],
+    install_requires=[
+		'setuptools',
+		'django_countries',
+	],
+
 	# metadata for upload to PyPI
-	author = 'European Southern Observatory',
-	author_email = 'information@eso.org',
-	description = 'Djangoplicity application for managing events and meetings',
-	license = "New BSD License",
-	keywords = "django djangoplicity events meetings calendar",
-	url = "http://www.djangoplicity.org/app/events/"
+	author='European Southern Observatory',
+	author_email='information@eso.org',
+	description='Djangoplicity application for managing events and meetings',
+	license="New BSD License",
+	keywords="django djangoplicity events meetings calendar",
+	url="http://www.djangoplicity.org/app/events/"
 )

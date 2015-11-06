@@ -40,6 +40,7 @@ from djangoplicity.events.models import Event, EventLocation, EventSeries, \
 class EventAdminForm(forms.ModelForm):
 	class Meta:
 		model = Event
+		fields = '__all__'
 
 	def clean(self):
 		cleaned_data = super(EventAdminForm, self).clean()
@@ -106,8 +107,8 @@ class EventAdmin( DjangoplicityModelAdmin ):
 	raw_id_fields = ( 'image', )
 	ordering = ('-start_date',)
 
-	def queryset(self, request):
-		return super(EventAdmin, self).queryset(request).select_related('location__site', 'series')
+	def get_queryset(self, request):
+		return super(EventAdmin, self).get_queryset(request).select_related('location__site', 'series')
 
 	def formfield_for_dbfield(self, db_field, **kwargs):
 		'''

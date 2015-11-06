@@ -39,7 +39,7 @@ from django.utils import dateformat, formats
 from django.utils.translation import ugettext_lazy as _
 from djangoplicity.utils.datetimes import timezone
 from django.conf import settings
-from django.db.models.signals import post_init, post_save, post_delete
+from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
 from django.utils.timezone import make_aware
 from django_countries.fields import CountryField
@@ -207,12 +207,17 @@ class Event( archives.ArchiveModel, models.Model ):
 		ordering = ( 'start_date', )
 
 
-@receiver(post_init, sender=Event)
-def event_post_init(sender, instance, **kwargs):
+@receiver(pre_save, sender=Event)
+def event_pre_save(sender, instance, **kwargs):
 	# storing these values for use in post_save
-	instance._old_audience = instance.audience
 	try:
-		instance._old_site_slug = instance.location.site.slug
+		obj = sender.objects.get(pk=instance.pk)
+	except sender.DoesNotExist:
+		obj = instance
+
+	instance._old_audience = obj.audience
+	try:
+		instance._old_site_slug = obj.location.site.slug
 	except AttributeError:
 		instance._old_site_slug = ''
 

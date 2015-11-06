@@ -83,7 +83,7 @@ class SiteQuery(ForeignKeyQuery):
 		except (ValueError, TypeError):
 			upcoming = None
 
-		qs = qs.select_related('series')
+		qs = qs.select_related('location', 'series')
 
 		if type:
 			qs = qs.filter(type__in=type)

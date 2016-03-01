@@ -30,7 +30,7 @@
 # POSSIBILITY OF SUCH DAMAGE
 #
 
-from datetime import datetime, timedelta
+from datetime import date, timedelta
 from djangoplicity.archives.contrib.queries import ForeignKeyQuery, AllPublicQuery
 from django.core import validators
 from django.core.exceptions import ValidationError
@@ -93,16 +93,16 @@ class SiteQuery(ForeignKeyQuery):
 			qs = qs.filter(audience__in=audience)
 		if upcoming is not None and year is None:
 			if upcoming == 0:
-				qs = qs.filter(Q(end_date__lte=datetime.now(), end_date__isnull=False) | Q(start_date__lte=datetime.now(), end_date__isnull=True))
+				qs = qs.filter(Q(end_date__lte=date.today(), end_date__isnull=False) | Q(start_date__lte=date.today(), end_date__isnull=True))
 			elif upcoming == 1:
-				qs = qs.filter(Q(end_date__gte=datetime.now(), end_date__isnull=False) | Q(start_date__gte=datetime.now(), end_date__isnull=True))
+				qs = qs.filter(Q(end_date__gte=date.today(), end_date__isnull=False) | Q(start_date__gte=date.today(), end_date__isnull=True))
 		if calendar and upcoming is None:
-			qs = qs.filter(Q(end_date__gte=(datetime.now() - timedelta(weeks=8)), end_date__isnull=False) | Q(start_date__gte=(datetime.now() - timedelta(weeks=8)), end_date__isnull=True))
+			qs = qs.filter(Q(end_date__gte=(date.today() - timedelta(weeks=8)), end_date__isnull=False) | Q(start_date__gte=(date.today() - timedelta(weeks=8)), end_date__isnull=True))
 		if video_only:
 			qs = qs.exclude(video_url='')
 
 		if year:
-			qs = qs.filter(start_date__year=year, start_date__lte=datetime.now())
+			qs = qs.filter(start_date__year=year, start_date__lte=date.today())
 
 		return (qs, query_data)
 
@@ -159,18 +159,19 @@ class AllEventsQuery(AllPublicQuery):
 		if upcoming is not None and year is None:
 			# We only filter by upcoming is year is not set
 			if upcoming == 0:
-				qs = qs.filter(Q(end_date__lte=datetime.now(), end_date__isnull=False) | Q(start_date__lte=datetime.now(), end_date__isnull=True))
+				qs = qs.filter(Q(end_date__lte=date.today(), end_date__isnull=False) | Q(start_date__lte=date.today(), end_date__isnull=True))
 			elif upcoming == 1:
-				qs = qs.filter(Q(end_date__gte=datetime.now(), end_date__isnull=False) | Q(start_date__gte=datetime.now(), end_date__isnull=True))
+				qs = qs.filter(Q(end_date__gte=date.today(), end_date__isnull=False) | Q(start_date__gte=date.today(), end_date__isnull=True))
 		if calendar and upcoming is None:
-			qs = qs.filter(Q(end_date__gte=(datetime.now() - timedelta(weeks=8)), end_date__isnull=False) | Q(start_date__gte=(datetime.now() - timedelta(weeks=8)), end_date__isnull=True))
+			qs = qs.filter(Q(end_date__gte=(date.today() - timedelta(weeks=8)), end_date__isnull=False) | Q(start_date__gte=(date.today() - timedelta(weeks=8)), end_date__isnull=True))
 		if video_only:
 			qs = qs.exclude(video_url='')
 
 		if year:
-			qs = qs.filter(start_date__year=year, start_date__lte=datetime.now())
+			qs = qs.filter(start_date__year=year, start_date__lte=date.today())
 
 		return (qs, query_data)
+
 
 class IndustryEventsQuery(AllEventsQuery):
 	def queryset(self, model, options, request, **kwargs):
@@ -178,4 +179,3 @@ class IndustryEventsQuery(AllEventsQuery):
 		qs = qs.filter(Q(series__slug='industry-day') | Q(audience='IN'))
 		qs = qs.order_by('-start_date')
 		return (qs, query_data)
-

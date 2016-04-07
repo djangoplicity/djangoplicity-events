@@ -30,7 +30,7 @@
 # POSSIBILITY OF SUCH DAMAGE
 #
 from django.utils.translation import ugettext as _
-from djangoplicity.archives import ArchiveOptions
+from djangoplicity.archives.options import ArchiveOptions
 from djangoplicity.archives.contrib.browsers import ListBrowser, SerializationBrowser
 from djangoplicity.archives.contrib.queries import YearQuery
 from djangoplicity.archives.contrib.serialization import JSONEmitter, ICalEmitter

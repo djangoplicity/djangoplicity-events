@@ -45,7 +45,7 @@ from django.utils.timezone import make_aware
 from django_countries.fields import CountryField
 import pytz
 
-from djangoplicity import archives
+from djangoplicity.archives.base import ArchiveModel
 from djangoplicity.media.models import Image
 from djangoplicity.events import tasks
 
@@ -112,7 +112,7 @@ class EventLocation( models.Model ):
 		ordering = ('site__name', 'name')
 
 
-class Event( archives.ArchiveModel, models.Model ):
+class Event( ArchiveModel, models.Model ):
 	""" Defines an event or meeting """
 	start_date = models.DateTimeField()
 	end_date = models.DateTimeField()

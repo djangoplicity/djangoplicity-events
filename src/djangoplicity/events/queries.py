@@ -75,13 +75,20 @@ class SiteQuery(ForeignKeyQuery):
 		series = self._sanitize_slug(request.GET.get('series', ''))
 		audience = [ self._sanitize_slug(t).upper() for t in request.GET.getlist('audience', '') ]
 		calendar = request.GET.get('calendar', None)  # 0 for past, 1 for future
-		year = request.GET.get('year', None)
 		video_only = 'video' in request.GET
+
+		try:
+			year = int(request.GET.get('year', None))  # 0 for past, 1 for future
+		except (ValueError, TypeError):
+			year = None
 
 		try:
 			upcoming = int(request.GET.get('upcoming', None))  # 0 for past, 1 for future
 		except (ValueError, TypeError):
-			upcoming = None
+			if year:
+				upcoming = None
+			else:
+				upcoming = 1
 
 		qs = qs.select_related('location', 'series')
 

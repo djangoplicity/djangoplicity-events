@@ -109,7 +109,9 @@ class SiteQuery(ForeignKeyQuery):
 			qs = qs.exclude(video_url='')
 
 		if year:
-			qs = qs.filter(start_date__year=year, start_date__lte=date.today())
+			qs = qs.filter(
+				start_date__year=year, start_date__lte=date.today()
+			).order_by('-start_date')
 
 		return (qs, query_data)
 

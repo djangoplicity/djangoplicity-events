@@ -66,7 +66,8 @@ class SiteQuery(ForeignKeyQuery):
 		- series: filter by series
 		- upcoming (0/1): filter by past or future events
 		- calendar: return only events no more than 8 weeks in the past and all in t
-		- year: return only events from the given year
+		- year: return only events from the given year (or past event for the
+		  current year if given witout value
 		"""
 		(qs, query_data) = super(SiteQuery, self).queryset(model, options, request, **kwargs)
 
@@ -77,9 +78,13 @@ class SiteQuery(ForeignKeyQuery):
 		calendar = request.GET.get('calendar', None)  # 0 for past, 1 for future
 		video_only = 'video' in request.GET
 
-		try:
-			year = int(request.GET.get('year', None))  # 0 for past, 1 for future
-		except (ValueError, TypeError):
+		if 'year' in request.GET:
+			try:
+				year = int(request.GET.get('year', None))
+			except (ValueError, TypeError):
+				# No year or invalid year, we use the current year
+				year = date.today().year
+		else:
 			year = None
 
 		try:

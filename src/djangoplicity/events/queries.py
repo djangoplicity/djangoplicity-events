@@ -31,10 +31,15 @@
 #
 
 from datetime import date, datetime, timedelta
-from djangoplicity.archives.contrib.queries import ForeignKeyQuery, AllPublicQuery
+from pytz import timezone
+
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+
+from djangoplicity.archives.contrib.queries import ForeignKeyQuery, AllPublicQuery  # pylint: disable=no-name-in-module
+
+from djangoplicity.events.models import EventSite
 
 
 class SiteQuery(ForeignKeyQuery):
@@ -98,6 +103,14 @@ class SiteQuery(ForeignKeyQuery):
 		qs = qs.select_related('location', 'series')
 
 		now = datetime.now()
+
+		# Get selected site
+		site = EventSite.objects.get(slug=kwargs['stringparam'])
+
+		# Get "now" in the timezone of the selected site
+		# TODO: This is a hack as we use naive timestamp in the database,
+		# we should really use aware timestamps and do this cleanly
+		now = datetime.now(timezone(site.timezone)).replace(tzinfo=None)
 
 		if type:
 			qs = qs.filter(type__in=type)

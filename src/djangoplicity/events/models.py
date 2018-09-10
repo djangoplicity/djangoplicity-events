@@ -106,7 +106,10 @@ class EventLocation( models.Model ):
 	site = models.ForeignKey( EventSite, blank=True, null=True )
 
 	def __unicode__( self ):
-		return self.name
+		s = self.name
+		if self.site:
+			s += ' | %s' % self.site
+		return s
 
 	class Meta:
 		ordering = ('site__name', 'name')
@@ -143,11 +146,11 @@ class Event( ArchiveModel, models.Model ):
 		# are entered as Chile local time and saved as Garching time.
 		# So if we have a site timezone for the event which is different than
 		# the local one we first convert it to a local time aware date
-		if self.location and self.location.site and self.location.site.timezone \
-			and self.location.site.timezone != settings.TIME_ZONE:
-			date = make_aware(self.start_date, timezone=pytz.timezone(self.location.site.timezone))
-
-		return timezone( date, tz=self.location.site.timezone if self.location and self.location.site and self.location.site.timezone else settings.TIME_ZONE )
+		if self.location and self.location.site and self.location.site.timezone:
+			tz = pytz.timezone(self.location.site.timezone)
+		else:
+			tz = pytz.timezone(settings.TIME_ZONE)
+		return tz.localize(date)
 
 	def get_dates( self ):
 		if self.end_date and self.start_date:

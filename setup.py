@@ -42,7 +42,7 @@ setup(
 	namespace_packages=['djangoplicity'],
     install_requires=[
 		'setuptools',
-		'django_countries',
+		'django_countries == 5.1.1',
 	],
 
 	# metadata for upload to PyPI

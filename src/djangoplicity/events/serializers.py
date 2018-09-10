@@ -58,7 +58,7 @@ class EventSerializer( SimpleSerializer ):
 
 	def get_image_value( self, obj ):
 		if obj.image and obj.image.resource_screen:
-			return obj.image.resource_screen.url
+			return obj.image.resource_wallpaper4.url
 		else:
 			return ""
 

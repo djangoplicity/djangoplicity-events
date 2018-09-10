@@ -30,11 +30,16 @@
 # POSSIBILITY OF SUCH DAMAGE
 #
 
-from datetime import date, timedelta
-from djangoplicity.archives.contrib.queries import ForeignKeyQuery, AllPublicQuery
+from datetime import date, datetime, timedelta
+from pytz import timezone
+
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+
+from djangoplicity.archives.contrib.queries import ForeignKeyQuery, AllPublicQuery  # pylint: disable=no-name-in-module
+
+from djangoplicity.events.models import EventSite
 
 
 class SiteQuery(ForeignKeyQuery):
@@ -66,7 +71,8 @@ class SiteQuery(ForeignKeyQuery):
 		- series: filter by series
 		- upcoming (0/1): filter by past or future events
 		- calendar: return only events no more than 8 weeks in the past and all in t
-		- year: return only events from the given year
+		- year: return only events from the given year (or past event for the
+		  current year if given witout value
 		"""
 		(qs, query_data) = super(SiteQuery, self).queryset(model, options, request, **kwargs)
 
@@ -75,15 +81,36 @@ class SiteQuery(ForeignKeyQuery):
 		series = self._sanitize_slug(request.GET.get('series', ''))
 		audience = [ self._sanitize_slug(t).upper() for t in request.GET.getlist('audience', '') ]
 		calendar = request.GET.get('calendar', None)  # 0 for past, 1 for future
-		year = request.GET.get('year', None)
 		video_only = 'video' in request.GET
+
+		if 'year' in request.GET:
+			try:
+				year = int(request.GET.get('year', None))
+			except (ValueError, TypeError):
+				# No year or invalid year, we use the current year
+				year = date.today().year
+		else:
+			year = None
 
 		try:
 			upcoming = int(request.GET.get('upcoming', None))  # 0 for past, 1 for future
 		except (ValueError, TypeError):
-			upcoming = None
+			if year:
+				upcoming = None
+			else:
+				upcoming = 1
 
 		qs = qs.select_related('location', 'series')
+
+		now = datetime.now()
+
+		# Get selected site
+		site = EventSite.objects.get(slug=kwargs['stringparam'])
+
+		# Get "now" in the timezone of the selected site
+		# TODO: This is a hack as we use naive timestamp in the database,
+		# we should really use aware timestamps and do this cleanly
+		now = datetime.now(timezone(site.timezone)).replace(tzinfo=None)
 
 		if type:
 			qs = qs.filter(type__in=type)
@@ -93,16 +120,18 @@ class SiteQuery(ForeignKeyQuery):
 			qs = qs.filter(audience__in=audience)
 		if upcoming is not None and year is None:
 			if upcoming == 0:
-				qs = qs.filter(Q(end_date__lte=date.today(), end_date__isnull=False) | Q(start_date__lte=date.today(), end_date__isnull=True))
+				qs = qs.filter(Q(end_date__lte=now, end_date__isnull=False) | Q(start_date__lte=now, end_date__isnull=True))
 			elif upcoming == 1:
-				qs = qs.filter(Q(end_date__gte=date.today(), end_date__isnull=False) | Q(start_date__gte=date.today(), end_date__isnull=True))
+				qs = qs.filter(Q(end_date__gte=now, end_date__isnull=False) | Q(start_date__gte=now, end_date__isnull=True))
 		if calendar and upcoming is None:
-			qs = qs.filter(Q(end_date__gte=(date.today() - timedelta(weeks=8)), end_date__isnull=False) | Q(start_date__gte=(date.today() - timedelta(weeks=8)), end_date__isnull=True))
+			qs = qs.filter(Q(end_date__gte=(now - timedelta(weeks=8)), end_date__isnull=False) | Q(start_date__gte=(now - timedelta(weeks=8)), end_date__isnull=True))
 		if video_only:
 			qs = qs.exclude(video_url='')
 
 		if year:
-			qs = qs.filter(start_date__year=year, start_date__lte=date.today())
+			qs = qs.filter(
+				start_date__year=year, start_date__lte=now
+			).order_by('-start_date')
 
 		return (qs, query_data)
 
@@ -150,6 +179,8 @@ class AllEventsQuery(AllPublicQuery):
 		except (ValueError, TypeError):
 			upcoming = None
 
+		now = datetime.now()
+
 		if type:
 			qs = qs.filter(type__in=type)
 		if series:
@@ -159,16 +190,16 @@ class AllEventsQuery(AllPublicQuery):
 		if upcoming is not None and year is None:
 			# We only filter by upcoming is year is not set
 			if upcoming == 0:
-				qs = qs.filter(Q(end_date__lte=date.today(), end_date__isnull=False) | Q(start_date__lte=date.today(), end_date__isnull=True))
+				qs = qs.filter(Q(end_date__lte=now, end_date__isnull=False) | Q(start_date__lte=now, end_date__isnull=True))
 			elif upcoming == 1:
-				qs = qs.filter(Q(end_date__gte=date.today(), end_date__isnull=False) | Q(start_date__gte=date.today(), end_date__isnull=True))
+				qs = qs.filter(Q(end_date__gte=now, end_date__isnull=False) | Q(start_date__gte=now, end_date__isnull=True))
 		if calendar and upcoming is None:
-			qs = qs.filter(Q(end_date__gte=(date.today() - timedelta(weeks=8)), end_date__isnull=False) | Q(start_date__gte=(date.today() - timedelta(weeks=8)), end_date__isnull=True))
+			qs = qs.filter(Q(end_date__gte=(now - timedelta(weeks=8)), end_date__isnull=False) | Q(start_date__gte=(now - timedelta(weeks=8)), end_date__isnull=True))
 		if video_only:
 			qs = qs.exclude(video_url='')
 
 		if year:
-			qs = qs.filter(start_date__year=year, start_date__lte=date.today())
+			qs = qs.filter(start_date__year=year, start_date__lte=now)
 
 		return (qs, query_data)
 

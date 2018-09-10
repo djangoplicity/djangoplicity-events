@@ -35,7 +35,8 @@ from djangoplicity.utils.html_to_text import DjangoplicityHTML2Text
 from celery.task import task
 
 from django.conf import settings
-from oauth2client.client import SignedJwtAssertionCredentials
+from oauth2client.service_account import ServiceAccountCredentials
+
 from httplib2 import Http
 from apiclient.discovery import build
 import logging
@@ -46,9 +47,8 @@ logger = logging.getLogger(__name__)
 def _google_calendar_service():
 	client_email = settings.GCAL_EMAIL
 	private_key_file = settings.GCAL_PRIVATE_KEY
-	with open(private_key_file) as f:
-		private_key = f.read()
-	credentials = SignedJwtAssertionCredentials(client_email, private_key, 'https://www.googleapis.com/auth/calendar')
+	credentials = ServiceAccountCredentials.from_p12_keyfile(client_email,
+		private_key_file, scopes='https://www.googleapis.com/auth/calendar')
 	http_auth = credentials.authorize(Http())
 	service = build(serviceName='calendar', version='v3', http=http_auth)
 	return service
@@ -85,7 +85,7 @@ def google_calendar_sync(instance_id, _old_audience, _old_site_slug):
 	service = _google_calendar_service()
 	eventId = instance.gcal_key
 
-	## code below retreives oldCalendarId when this function is called on pre_save
+	# code below retreives oldCalendarId when this function is called on pre_save
 	# get previous calendar id; we might need to move the event to another calendar
 	# if instance.id:
 	# 	old_instance = type(instance).objects.get(pk=instance.pk)

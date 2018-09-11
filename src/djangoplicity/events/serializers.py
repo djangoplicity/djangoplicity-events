@@ -38,81 +38,81 @@ from djangoplicity.archives.contrib.serialization import SimpleSerializer
 
 
 class EventSerializer( SimpleSerializer ):
-	fields = (
-		'title',
-		'speaker',
-		'affiliation',
-		'abstract',
-		'series',
-		'type',
-		'image',
-		'start_date_tz',
-		'end_date_tz',
-		'location',
-		'video_url',
-		'additional_information',
-	)
+    fields = (
+        'title',
+        'speaker',
+        'affiliation',
+        'abstract',
+        'series',
+        'type',
+        'image',
+        'start_date_tz',
+        'end_date_tz',
+        'location',
+        'video_url',
+        'additional_information',
+    )
 
-	def get_type_value( self, obj ):
-		return obj.get_type_display()
+    def get_type_value( self, obj ):
+        return obj.get_type_display()
 
-	def get_image_value( self, obj ):
-		if obj.image and obj.image.resource_screen:
-			return obj.image.resource_wallpaper4.url
-		else:
-			return ""
+    def get_image_value( self, obj ):
+        if obj.image and obj.image.resource_screen:
+            return obj.image.resource_wallpaper4.url
+        else:
+            return ""
 
 
 class ICalEventSerializer( SimpleSerializer ):
-	"""
-	Serialier responsible for converting events into
-	iCal data structure.
-	"""
+    """
+    Serialier responsible for converting events into
+    iCal data structure.
+    """
 
-	fields = (
-		'summary',
-		'description',
-		'location',
-		'dtstart',
-		'dtend',
-		'dtstamp',
-	)
+    fields = (
+        'summary',
+        'description',
+        'location',
+        'dtstart',
+        'dtend',
+        'dtstamp',
+    )
 
-	def get_summary_value( self, obj ):
-		return "%s: %s" % ( obj.series, obj.title ) if obj.series else obj.title
+    def get_summary_value( self, obj ):
+        return "%s: %s" % ( obj.series, obj.title ) if obj.series else obj.title
 
-	def get_description_value( self, obj ):
-		tmp = [obj.title]
+    def get_description_value( self, obj ):
+        tmp = [obj.title]
 
-		if obj.additional_information:
-			tmp.append("")
-			tmp.append( obj.additional_information )
+        if obj.additional_information:
+            tmp.append("")
+            tmp.append( obj.additional_information )
 
-		if obj.speaker:
-			if obj.affiliation:
-				tmp.append("")
-				tmp.append( "Speaker: %s (%s)" % (obj.speaker, obj.affiliation) )
-			else:
-				tmp.append("")
-				tmp.append( "Speaker: %s" % obj.speaker )
+        if obj.speaker:
+            if obj.affiliation:
+                tmp.append("")
+                tmp.append( "Speaker: %s (%s)" % (obj.speaker, obj.affiliation) )
+            else:
+                tmp.append("")
+                tmp.append( "Speaker: %s" % obj.speaker )
 
-		if obj.series:
-			tmp.append( "Series: %s" % obj.series )
+        if obj.series:
+            tmp.append( "Series: %s" % obj.series )
 
-		if obj.abstract:
-			tmp.append("")
-			tmp.append( "ABSTRACT: %s" % obj.abstract )
+        if obj.abstract:
+            tmp.append("")
+            tmp.append( "ABSTRACT: %s" % obj.abstract )
 
-		return "\n".join( tmp )
+        return "\n".join( tmp )
 
-	def get_location_value( self, obj ):
-		return obj.location
+    def get_location_value( self, obj ):
+        return obj.location
 
-	def get_dtstart_value( self, obj ):
-		return obj.start_date_tz
+    def get_dtstart_value( self, obj ):
+        return obj.start_date_tz
 
-	def get_dtend_value( self, obj ):
-		return obj.end_date_tz if obj.end_date_tz else obj.start_date_tz
+    def get_dtend_value( self, obj ):
+        return obj.end_date_tz if obj.end_date_tz else obj.start_date_tz
 
-	def get_dtstamp_value( self, obj ):
-		return obj.end_date_tz if obj.end_date_tz else obj.start_date_tz
+    def get_dtstamp_value( self, obj ):
+        return obj.end_date_tz if obj.end_date_tz else obj.start_date_tz

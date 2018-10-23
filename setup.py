@@ -33,23 +33,23 @@
 from setuptools import setup, find_packages
 
 setup(
-	name='djangoplicity-events',
-	version='0.1.0',
-	packages=find_packages('src'),
-	package_dir={ '': 'src' },
-	include_package_data=True,
-	zip_safe=False,
-	namespace_packages=['djangoplicity'],
+    name='djangoplicity-events',
+    version='0.1.0',
+    packages=find_packages('src'),
+    package_dir={ '': 'src' },
+    include_package_data=True,
+    zip_safe=False,
+    namespace_packages=['djangoplicity'],
     install_requires=[
-		'setuptools',
-		'django_countries == 5.1.1',
-	],
+        'setuptools',
+        'django_countries == 5.1.1',
+    ],
 
-	# metadata for upload to PyPI
-	author='European Southern Observatory',
-	author_email='information@eso.org',
-	description='Djangoplicity application for managing events and meetings',
-	license="New BSD License",
-	keywords="django djangoplicity events meetings calendar",
-	url="http://www.djangoplicity.org/app/events/"
+    # metadata for upload to PyPI
+    author='European Southern Observatory',
+    author_email='information@eso.org',
+    description='Djangoplicity application for managing events and meetings',
+    license="New BSD License",
+    keywords="django djangoplicity events meetings calendar",
+    url="http://www.djangoplicity.org/app/events/"
 )

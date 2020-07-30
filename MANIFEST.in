@@ -31,3 +31,4 @@
 #
 include *.txt
 recursive-include docs *
+recursive-include djangoplicity/events/ *

@@ -38,7 +38,6 @@ setup(
     packages=find_packages('djangoplicity'),
     include_package_data=True,
     zip_safe=False,
-    namespace_packages=['djangoplicity'],
     install_requires=[
         'setuptools',
         'django_countries == 5.1.1',

@@ -35,7 +35,7 @@ from setuptools import setup, find_packages
 setup(
     name='djangoplicity-events',
     version='0.1.0',
-    packages=find_packages(include=['djangoplicity.*'],
+    packages=find_packages(include=['djangoplicity.*']),
     include_package_data=True,
     zip_safe=False,
     install_requires=[

@@ -1,0 +1,36 @@
+version: "3.4"
+
+x-common: &common
+  build: .
+  volumes:
+    - media:/app/media
+    - import:/app/import
+    - ./djangoplicity:/app/djangoplicity
+    - ./test_project:/app/test_project
+    - ./local:/app/local
+    - ./htmlcov:/app/htmlcov
+    - ./db:/app/db
+    - ./.coveragerc:/app/.coveragerc
+
+services:
+  web:
+    <<: *common
+    container_name: djangoplicity-events
+    command: ["./test_project/scripts/command-dev.sh"]
+    ports:
+      - "8005:8000"
+  
+  # TODO: Currently not being used, configure test_project to use this database
+  # db:
+  #   image: postgres:10.5
+  #   container_name: djangoplicity-db
+  #   environment:
+  #     POSTGRES_DB: djangoplicity
+  #     POSTGRES_USER: djangoplicity
+  #     POSTGRES_PASSWORD: djangoplicity
+  #   ports:
+  #     - "60000:5432"
+
+volumes:
+  import:
+  media:

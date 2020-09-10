@@ -1,0 +1,14 @@
+Django>1.11
+django_countries == 5.1.1
+
+# djangoplicity
+git+https://@github.com/djangoplicity/djangoplicity.git@develop
+
+# Asynchronous Task Queue
+celery==4.3.0
+
+# PostgreSQL python client
+psycopg2-binary
+sqlparse
+
+coverage == 5.1

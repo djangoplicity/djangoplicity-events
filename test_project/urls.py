@@ -16,12 +16,15 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
+from djangoplicity.events.models import Event
+from djangoplicity.events.options import EventOptions
 
 urlpatterns = [
     # Djangoplicity Administration
     url(r'^admin/', admin.site.urls),
     url(r'^admin/import/', include('djangoplicity.archives.importer.urls')),
     url(r'^tinymce/', include('tinymce.urls')),
+    url(r'^$', include('djangoplicity.events.urls'), {'model': Event, 'options': EventOptions, 'translate': False}),
 ]
 
 # This only works if DEBUG=True

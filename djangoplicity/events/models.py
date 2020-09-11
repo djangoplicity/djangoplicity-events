@@ -45,6 +45,7 @@ from django.utils.timezone import make_aware
 from django_countries.fields import CountryField
 from django.core.validators import URLValidator
 import pytz
+import re
 
 from djangoplicity.archives.base import ArchiveModel
 from djangoplicity.media.models import Image
@@ -132,7 +133,7 @@ class Event( ArchiveModel, models.Model ):
     registration = models.CharField( verbose_name="Registration", blank=True, null=True, max_length=255, help_text="Use this to add a registration URL or information about the registration to the event." )
     webpage_url = models.URLField( verbose_name="Webpage URL", blank=True, null=True, max_length=255, help_text="Link to webpage of this event if it exists." )
     image_url = models.URLField( verbose_name="Image URL", blank=True, null=True, max_length=255, help_text="Alternative to display an image from this URL instead in case the image is not in the Images Archive." )
-    video_url = models.URLField( verbose_name="Video URL", blank=True, null=True, max_length=255, help_text="Link to flash video (.flv) of this event if it exists." )
+    video_url = models.URLField( verbose_name="Video URL", blank=True, null=True, max_length=255, help_text="Link to flash video (.flv) of this event if it exists or YouTube's video URL in this format: https://www.youtube.com/watch?v=videoID." )
     slides_url = models.URLField( verbose_name="Slides URL", blank=True, null=True, max_length=255, help_text="Link to slides for this event if any." )
     additional_information = models.CharField( max_length=255, blank=True, help_text="Short additional information to be displayed on reception screen." )
     gcal_key = models.CharField( max_length=255, blank=True, null=True, )
@@ -194,6 +195,15 @@ class Event( ArchiveModel, models.Model ):
             return True
         except:
             return False
+
+    def youtube_embed_url(self):
+        if self.video_url:
+            regex = re.compile(r'(https?://)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)/(watch\?v=|embed/|v/|.+\?v=)?(?P<id>[A-Za-z0-9\-=_]{11})')
+            match = regex.match(self.video_url)
+            if match:
+                embed_url = 'https://www.youtube.com/embed/%s' %(match.group('id'))
+                return embed_url
+        return ''
 
     def _get_start_date_tz( self ):
         return self._get_date_tz( self.start_date )

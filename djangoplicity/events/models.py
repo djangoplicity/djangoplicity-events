@@ -43,6 +43,7 @@ from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
 from django.utils.timezone import make_aware
 from django_countries.fields import CountryField
+from django.core.validators import URLValidator
 import pytz
 
 from djangoplicity.archives.base import ArchiveModel
@@ -128,7 +129,9 @@ class Event( ArchiveModel, models.Model ):
     affiliation = models.CharField( max_length=255, blank=True, help_text="Affiliation of the speaker - please keep short if possible." )
     abstract = models.TextField( blank=True )
     image = models.ForeignKey( Image, blank=True, null=True, help_text="Image id of image to display together with this event." )
+    registration = models.CharField( verbose_name="Registration", blank=True, null=True, max_length=255, help_text="Use this to add a registration URL or information about the registration to the event." )
     webpage_url = models.URLField( verbose_name="Webpage URL", blank=True, null=True, max_length=255, help_text="Link to webpage of this event if it exists." )
+    image_url = models.URLField( verbose_name="Image URL", blank=True, null=True, max_length=255, help_text="Alternative to display an image from this URL instead in case the image is not in the Images Archive." )
     video_url = models.URLField( verbose_name="Video URL", blank=True, null=True, max_length=255, help_text="Link to flash video (.flv) of this event if it exists." )
     slides_url = models.URLField( verbose_name="Slides URL", blank=True, null=True, max_length=255, help_text="Link to slides for this event if any." )
     additional_information = models.CharField( max_length=255, blank=True, help_text="Short additional information to be displayed on reception screen." )
@@ -183,6 +186,14 @@ class Event( ArchiveModel, models.Model ):
             calendarId = settings.GCAL_CALENDAR[self.audience]['default']
 
         return calendarId
+    
+    def registration_is_url(self):
+        validate = URLValidator()
+        try:
+            validate(self.registration)
+            return True
+        except:
+            return False
 
     def _get_start_date_tz( self ):
         return self._get_date_tz( self.start_date )

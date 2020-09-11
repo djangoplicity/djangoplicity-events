@@ -24,7 +24,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^admin/import/', include('djangoplicity.archives.importer.urls')),
     url(r'^tinymce/', include('tinymce.urls')),
-    url(r'^$', include('djangoplicity.events.urls'), {'model': Event, 'options': EventOptions, 'translate': False}),
+    url(r'', include('djangoplicity.events.urls'), {'model': Event, 'options': EventOptions, 'translate': False}),
 ]
 
 # This only works if DEBUG=True

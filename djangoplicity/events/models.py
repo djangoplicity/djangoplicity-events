@@ -61,6 +61,10 @@ EVENT_TYPES = (
     ( 'PE', 'Press Event' ),
     ( 'T', 'Talk' ),
     ( 'W', 'Workshop' ),
+    ( 'ED', 'Educational event' ),
+    ( 'TT', 'Teacher Training' ),
+    ( 'CS', 'Citizen Science' ),
+    ( 'LC', 'Local Community Event' ),
 )
 
 AUDIENCE_TYPES = (

@@ -252,6 +252,9 @@ def event_pre_save(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Event)
 def event_post_save(sender, instance, **kwargs):
+    if not hasattr(settings, 'GCAL_CALENDAR'):
+        return
+    
     update_fields = kwargs['update_fields']
     if not update_fields or not(len(update_fields) == 1 and 'gcal_key' in update_fields):
         # don't sync if we're only saving the 'gcal_key'
@@ -261,5 +264,8 @@ def event_post_save(sender, instance, **kwargs):
 
 @receiver(post_delete, sender=Event)
 def event_post_delete(sender, instance, **kwargs):
+    if not hasattr(settings, 'GCAL_CALENDAR'):
+        return
+    
     calendarId = instance.get_calendar()
     tasks.google_calendar_delete.delay(instance.gcal_key, calendarId)

@@ -44,6 +44,7 @@ from django.dispatch import receiver
 from django.utils.timezone import make_aware
 from django_countries.fields import CountryField
 from django.core.validators import URLValidator
+from django.core.urlresolvers import reverse
 import pytz
 import re
 
@@ -191,7 +192,7 @@ class Event( ArchiveModel, models.Model ):
             calendarId = settings.GCAL_CALENDAR[self.audience]['default']
 
         return calendarId
-    
+
     def registration_is_url(self):
         validate = URLValidator()
         try:
@@ -214,6 +215,9 @@ class Event( ArchiveModel, models.Model ):
 
     def _get_end_date_tz( self ):
         return self._get_date_tz( self.end_date )
+
+    def get_absolute_url(self):
+        return reverse( 'events_detail', args=[str( self.id )] )
 
     start_date_tz = property( _get_start_date_tz )
     end_date_tz = property( _get_end_date_tz )
@@ -254,7 +258,7 @@ def event_pre_save(sender, instance, **kwargs):
 def event_post_save(sender, instance, **kwargs):
     if not hasattr(settings, 'GCAL_CALENDAR'):
         return
-    
+
     update_fields = kwargs['update_fields']
     if not update_fields or not(len(update_fields) == 1 and 'gcal_key' in update_fields):
         # don't sync if we're only saving the 'gcal_key'
@@ -266,6 +270,6 @@ def event_post_save(sender, instance, **kwargs):
 def event_post_delete(sender, instance, **kwargs):
     if not hasattr(settings, 'GCAL_CALENDAR'):
         return
-    
+
     calendarId = instance.get_calendar()
     tasks.google_calendar_delete.delay(instance.gcal_key, calendarId)

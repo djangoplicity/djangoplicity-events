@@ -201,6 +201,9 @@ class AllEventsQuery(AllPublicQuery):
         if year:
             qs = qs.filter(start_date__year=year, start_date__lte=now)
 
+        if upcoming != 1:
+            qs = qs.order_by('-start_date')
+
         return (qs, query_data)
 
 

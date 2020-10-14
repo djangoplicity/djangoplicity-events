@@ -1,19 +1,32 @@
 from django import template
-from djangoplicity.events.models import EVENT_TYPES, AUDIENCE_TYPES
+from djangoplicity.events.models import EVENT_TYPES, EDUCATIONAL_EVENT_TYPES, PUBLIC_AUDIENCE_TYPES
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 register = template.Library()
 
 @register.inclusion_tag('audience_options.html', takes_context=True)
 def show_event_audiences(context):
-    choices = AUDIENCE_TYPES
+    choices = PUBLIC_AUDIENCE_TYPES
     audience = context.request.GET['audience'] if 'audience' in context.request.GET else None
 
     # Get current url params
-    event_type = context.request.GET['type'] if 'type' in context.request.GET else None
-    current_params = '&type=%s' % event_type if event_type else ''
+    event_types = context.request.GET.getlist('type', [])
+    upcoming = context.request.GET.get('upcoming', None)
+
+    current_params = ''
+    for event_type in event_types:
+        if current_params == '':
+            current_params += 'type=%s' % event_type
+        else:
+            current_params += '&type=%s' % event_type
+
+    current_params += '&upcoming=%s' % upcoming if upcoming else ''
 
     # All
-    all_audiences = '?type=%s' % event_type if event_type else '.'
+    all_audiences = '?%s' % current_params if current_params != '' else '.'
+
+    if current_params != '':
+        current_params = '&%s' % current_params
 
     return {
         'choices': choices,
@@ -25,18 +38,111 @@ def show_event_audiences(context):
 @register.inclusion_tag('event_type_options.html', takes_context=True)
 def show_event_types(context):
     choices = EVENT_TYPES
-    event_type = context.request.GET['type'] if 'type' in context.request.GET else None
+    event_types = context.request.GET.getlist('type', [])
 
     # Get current url params
-    audience = context.request.GET['audience'] if 'audience' in context.request.GET else None
-    current_params = '&audience=%s' % audience if audience else ''
+    audiences = context.request.GET.getlist('audience', [])
+    upcoming = context.request.GET.get('upcoming', None)
+
+    current_params = ''
+    for audience in audiences:
+        if current_params == '':
+            current_params += 'audience=%s' % audience
+        else:
+            current_params += '&audience=%s' % audience
+
+    current_params += '&upcoming=%s' % upcoming if upcoming else ''
 
     # All
-    all_types = '?audience=%s' % audience if audience else '.'
+    all_types = '?%s' % current_params if current_params != '' else '.'
+
+    if current_params != '':
+        current_params = '&%s' % current_params
 
     return {
         'choices': choices,
         'current_params': current_params,
-        'type': event_type,
+        'types': event_types,
         'all': all_types
         }
+
+@register.inclusion_tag('upcoming_options.html', takes_context=True)
+def show_event_upcoming_options(context):
+    choices = [
+        ('1', 'Upcoming Events'),
+        ('0', 'Past Events')
+    ]
+    upcoming = context.request.GET.get('upcoming', None)
+
+    # Get current url params
+    audiences = context.request.GET.getlist('audience', [])
+    event_types = context.request.GET.getlist('type', [])
+
+
+    current_params = ''
+    for audience in audiences:
+        if current_params == '':
+            current_params += 'audience=%s' % audience
+        else:
+            current_params += '&audience=%s' % audience
+
+    for event_type in event_types:
+        if current_params == '':
+            current_params += 'type=%s' % event_type
+        else:
+            current_params += '&type=%s' % event_type
+
+    # All
+    all_types = '?%s' % current_params if current_params != '' else '.'
+
+    if current_params != '':
+        current_params = '&%s' % current_params
+
+    return {
+        'choices': choices,
+        'current_params': current_params,
+        'upcoming': upcoming,
+        'all': all_types
+        }
+
+def is_educational_event(event_type):
+    if not isinstance(event_type, str):
+        return False
+    for key, value in EDUCATIONAL_EVENT_TYPES:
+        if key == event_type:
+            return True
+    return False
+
+def request_contain_all_educational_events(event_types):
+    """
+    Return True when all educational events are request
+    """
+    if len(event_types) < 4:
+        return False
+
+    for key, value in EDUCATIONAL_EVENT_TYPES:
+        if key not in event_types:
+            return False
+    return True
+
+@register.simple_tag(takes_context=True)
+def event_title(context):
+    event_types = context.request.GET.getlist('type', None)
+
+    event_type = context.request.GET.get('type', None)
+    upcoming = context.request.GET.get('upcoming', None)
+    title = 'Events'
+
+    for key, value in EVENT_TYPES:
+        if key == event_type:
+            # Special case when all educational types are request
+            if request_contain_all_educational_events(event_types):
+                value = 'Educational'
+
+            if upcoming == '1':
+                return ugettext('Upcoming %s Events' % value)
+            elif upcoming == '0':
+                return ugettext('Pass %s Events' % value)
+            return ugettext("%s Events" % value)
+
+    return title

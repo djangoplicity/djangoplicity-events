@@ -1,13 +1,13 @@
 {% load i18n %}
 <ul>
-    {% if type is None %}
-        <li><strong><a href="{{ all }}" style="color: black;">{% trans 'All' %}</a></strong></li>
-    {% else %}
+    {% if types %}
         <li><a href="{{ all }}">{% trans 'All' %}</a></li>
+    {% else %}
+        <li><strong><a href="{{ all }}" style="color: black;">{% trans 'All' %}</a></strong></li>
     {% endif %}
 
     {% for key, value in choices %}
-        {% if key == type %}
+        {% if key in types %}
             <li><strong><a href="?type={{ key }}{{ current_params }}" style="color: black;">{{ value }}</a></strong></li>
         {% else %}
             <li><a href="?type={{ key }}{{ current_params }}">{{ value }}</a></></li>

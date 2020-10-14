@@ -52,8 +52,14 @@ from djangoplicity.archives.base import ArchiveModel
 from djangoplicity.media.models import Image
 from djangoplicity.events import tasks
 
+EDUCATIONAL_EVENT_TYPES = [
+    ( 'ED', 'Educational event' ),
+    ( 'TT', 'Teacher Training' ),
+    ( 'CS', 'Citizen Science' ),
+    ( 'LC', 'Local Community Event' ),
+]
 
-EVENT_TYPES = (
+EVENT_TYPES = [
     ( 'C', 'Conference' ),
     ( 'E', 'Event' ),
     ( 'EX', 'Exhibitions' ),
@@ -62,19 +68,23 @@ EVENT_TYPES = (
     ( 'PE', 'Press Event' ),
     ( 'T', 'Talk' ),
     ( 'W', 'Workshop' ),
-    ( 'ED', 'Educational event' ),
-    ( 'TT', 'Teacher Training' ),
-    ( 'CS', 'Citizen Science' ),
-    ( 'LC', 'Local Community Event' ),
-)
+]
 
-AUDIENCE_TYPES = (
-    ( 'I', 'Internal' ),
+EVENT_TYPES += EDUCATIONAL_EVENT_TYPES
+
+PUBLIC_AUDIENCE_TYPES = [
     ( 'P', 'Public' ),
     ( 'IN', 'Industry' ),
     ( 'S', 'Science' ),
     ( 'SI', 'Science Internal' ),
-)
+]
+
+AUDIENCE_TYPES = [
+    ( 'I', 'Internal' ),
+]
+
+AUDIENCE_TYPES += PUBLIC_AUDIENCE_TYPES
+
 
 EVENTSITE_TZS = [( tz, tz ) for tz in pytz.all_timezones]
 

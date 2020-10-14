@@ -125,6 +125,14 @@ def request_contain_all_educational_events(event_types):
             return False
     return True
 
+def cast_event_title(title):
+    if title.lower().endswith("event"):
+        title += 's'
+    else:
+        title += " Events"
+    return title
+
+
 @register.simple_tag(takes_context=True)
 def event_title(context):
     event_types = context.request.GET.getlist('type', None)
@@ -139,10 +147,12 @@ def event_title(context):
             if request_contain_all_educational_events(event_types):
                 value = 'Educational'
 
+            value = cast_event_title(value)
+
             if upcoming == '1':
-                return ugettext('Upcoming %s Events' % value)
+                return ugettext('Upcoming %s' % value)
             elif upcoming == '0':
-                return ugettext('Pass %s Events' % value)
-            return ugettext("%s Events" % value)
+                return ugettext('Pass %s' % value)
+            return ugettext(value)
 
     return title

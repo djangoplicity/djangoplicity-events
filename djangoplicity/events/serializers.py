@@ -39,6 +39,7 @@ from djangoplicity.archives.contrib.serialization import SimpleSerializer
 
 class EventSerializer( SimpleSerializer ):
     fields = (
+        'id',
         'title',
         'speaker',
         'affiliation',

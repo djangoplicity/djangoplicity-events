@@ -62,7 +62,7 @@ EDUCATIONAL_EVENT_TYPES = [
 EVENT_TYPES = [
     ( 'C', 'Conference' ),
     ( 'E', 'Event' ),
-    ( 'EX', 'Exhibitions' ),
+    ( 'EX', 'Exhibition' ),
     ( 'L', 'Lecture' ),
     ( 'M', 'Meeting' ),
     ( 'PE', 'Press Event' ),

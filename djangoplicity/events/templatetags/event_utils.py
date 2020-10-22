@@ -119,7 +119,6 @@ def request_contain_all_educational_events(event_types):
     """
     if len(event_types) < 4:
         return False
-
     for key, value in EDUCATIONAL_EVENT_TYPES:
         if key not in event_types:
             return False
@@ -145,14 +144,13 @@ def event_title(context):
         if key == event_type:
             # Special case when all educational types are request
             if request_contain_all_educational_events(event_types):
-                value = 'Educational'
+                title = 'Educational'
 
-            value = cast_event_title(value)
+            title = cast_event_title(value)
 
-            if upcoming == '1':
-                return ugettext('Upcoming %s' % value)
-            elif upcoming == '0':
-                return ugettext('Pass %s' % value)
-            return ugettext(value)
+    if upcoming == '1':
+        return ugettext('Upcoming %s' % title)
+    elif upcoming == '0':
+        return ugettext('Pass %s' % title)
 
-    return title
+    return ugettext(title)

@@ -140,13 +140,13 @@ def event_title(context):
     upcoming = context.request.GET.get('upcoming', None)
     title = 'Events'
 
-    for key, value in EVENT_TYPES:
-        if key == event_type:
-            # Special case when all educational types are request
-            if request_contain_all_educational_events(event_types):
-                title = 'Educational'
-
-            title = cast_event_title(value)
+    if request_contain_all_educational_events(event_types):
+        title = cast_event_title('Educational')
+    else:
+        for key, value in EVENT_TYPES:
+            if key == event_type:
+                # Special case when all educational types are request
+                title = cast_event_title(value)
 
     if upcoming == '1':
         return ugettext('Upcoming %s' % title)

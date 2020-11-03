@@ -151,6 +151,6 @@ def event_title(context):
     if upcoming == '1':
         return ugettext('Upcoming %s' % title)
     elif upcoming == '0':
-        return ugettext('Pass %s' % title)
+        return ugettext('Past %s' % title)
 
     return ugettext(title)

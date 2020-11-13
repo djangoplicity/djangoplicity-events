@@ -79,8 +79,10 @@ PUBLIC_AUDIENCE_TYPES = [
     ( 'SI', 'Science Internal' ),
 ]
 
+
+INTERNAL_AUDIENCE_KEY = 'I'
 AUDIENCE_TYPES = [
-    ( 'I', 'Internal' ),
+    ( INTERNAL_AUDIENCE_KEY, 'Internal' ),
 ]
 
 AUDIENCE_TYPES += PUBLIC_AUDIENCE_TYPES

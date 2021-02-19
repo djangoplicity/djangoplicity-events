@@ -41,6 +41,7 @@ class EventSerializer( SimpleSerializer ):
     fields = (
         'id',
         'title',
+        'audience',
         'speaker',
         'affiliation',
         'abstract',

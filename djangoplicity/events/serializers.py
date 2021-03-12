@@ -33,9 +33,10 @@
 """
 Serializers for Event models
 """
-
+from django.contrib.sites.shortcuts import get_current_site
 from djangoplicity.archives.contrib.serialization import SimpleSerializer
-
+from djangoplicity.events.models import Event
+from djangoplicity.archives.utils import get_instance_archives_urls
 
 class EventSerializer( SimpleSerializer ):
     fields = (
@@ -51,17 +52,27 @@ class EventSerializer( SimpleSerializer ):
         'end_date_tz',
         'location',
         'video_url',
+        'alternative_image_url',
         'additional_information',
+        'url',
     )
+
+    def get_alternative_image_url_value(self, obj):
+        return obj.image_url
 
     def get_type_value( self, obj ):
         return obj.get_type_display()
 
     def get_image_value( self, obj ):
-        if obj.image and obj.image.resource_screen:
-            return obj.image.resource_wallpaper4.url
-        else:
-            return ""
+        return {
+            'id': obj.image.id,
+            'width': obj.image.width,
+            'height': obj.image.height,
+            'formats_url': get_instance_archives_urls(obj.image),
+        } if obj.image else {}
+
+    def get_url_value( self, obj ):
+        return 'https://%s%s' % (get_current_site(None), obj.get_absolute_url())
 
 
 class ICalEventSerializer( SimpleSerializer ):

@@ -72,7 +72,7 @@ class EventSerializer( SimpleSerializer ):
         } if obj.image else {}
 
     def get_url_value( self, obj ):
-        return 'http://%s%s' % (get_current_site(None), obj.get_absolute_url())
+        return 'https://%s%s' % (get_current_site(None), obj.get_absolute_url())
 
 
 class ICalEventSerializer( SimpleSerializer ):

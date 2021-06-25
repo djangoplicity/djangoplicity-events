@@ -33,7 +33,7 @@
 from django import forms
 from django.contrib import admin
 from djangoplicity.contrib.admin import DjangoplicityModelAdmin
-from djangoplicity.events.models import Event, EventLocation, EventSeries, \
+from djangoplicity.events.models import Calendar, Event, EventLocation, EventSeries, \
     EventSite
 from djangoplicity.archives.contrib.admin import view_link
 
@@ -124,12 +124,16 @@ class EventAdmin( DjangoplicityModelAdmin ):
                 request.series_choices_cache = formfield.choices
         return formfield
 
+class CalendarAdmin(admin.ModelAdmin):
+    list_display = ('type', 'url')
+
 
 def register_with_admin( admin_site ):
     admin_site.register( EventLocation, EventLocationAdmin )
     admin_site.register( EventSite, EventSiteAdmin )
     admin_site.register( EventSeries, EventSeriesAdmin )
     admin_site.register( Event, EventAdmin )
+    admin_site.register( Calendar, CalendarAdmin)
 
 # Register with default admin site
 register_with_admin( admin.site )

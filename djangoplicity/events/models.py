@@ -74,6 +74,11 @@ PUBLIC_AUDIENCE_TYPES = [
     ( 'S', 'Science' ),
 ]
 
+CALENDAR_TYPES = [
+    ('H', 'HTML'),
+    ('I', 'ICAL'),
+    ('X', 'XML'),
+]
 
 INTERNAL_AUDIENCE_KEY = 'I'
 AUDIENCE_TYPES = [
@@ -84,6 +89,13 @@ AUDIENCE_TYPES += PUBLIC_AUDIENCE_TYPES
 
 
 EVENTSITE_TZS = [( tz, tz ) for tz in pytz.all_timezones]
+
+class Calendar(models.Model):
+    type = models.CharField( max_length=1, choices=CALENDAR_TYPES)
+    url = models.URLField( verbose_name="Calendar URL", max_length=255)
+
+    def __unicode__( self ):
+        return "%s: %s" % (self.type, self.url)
 
 
 class EventSite( models.Model ):

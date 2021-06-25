@@ -1,5 +1,5 @@
 from django import template
-from djangoplicity.events.models import EVENT_TYPES, EDUCATIONAL_EVENT_TYPES, PUBLIC_AUDIENCE_TYPES
+from djangoplicity.events.models import EVENT_TYPES, EDUCATIONAL_EVENT_TYPES, PUBLIC_AUDIENCE_TYPES, Calendar
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 register = template.Library()
@@ -105,6 +105,11 @@ def show_event_upcoming_options(context):
         'all': all_types
         }
 
+@register.inclusion_tag('calendar_options.html', takes_context=True)
+def show_calendars(context):
+    calendars = Calendar.objects.all()
+    return { 'calendars': calendars }
+
 def is_educational_event(event_type):
     if not isinstance(event_type, str):
         return False
@@ -125,6 +130,10 @@ def request_contain_all_educational_events(event_types):
     return True
 
 def cast_event_title(title):
+    # not append events word
+    if title.lower() in ['exhibition', 'talk', 'conference']:
+        return title + 's'
+
     if title.lower().endswith("event"):
         title += 's'
     else:

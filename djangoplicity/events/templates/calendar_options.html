@@ -1,0 +1,8 @@
+{% load i18n %}
+<ul>
+    {% for calendar in calendars %}
+        <li>
+            <a target="_blank" href="{{ calendar.url|safe }}">{{ calendar.get_type_display }}</a>
+        </li>
+    {% endfor %}
+</ul>

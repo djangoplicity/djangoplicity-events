@@ -91,7 +91,7 @@ class ICalEventSerializer( SimpleSerializer ):
     )
 
     def get_summary_value( self, obj ):
-        return "%s: %s" % ( obj.series, obj.title ) if obj.series else obj.title
+        return u"%s: %s" % ( obj.series, obj.title ) if obj.series else obj.title
 
     def get_description_value( self, obj ):
         tmp = [obj.title]
@@ -103,19 +103,19 @@ class ICalEventSerializer( SimpleSerializer ):
         if obj.speaker:
             if obj.affiliation:
                 tmp.append("")
-                tmp.append( "Speaker: %s (%s)" % (obj.speaker, obj.affiliation) )
+                tmp.append( u"Speaker: %s (%s)" % (obj.speaker, obj.affiliation) )
             else:
                 tmp.append("")
-                tmp.append( "Speaker: %s" % obj.speaker )
+                tmp.append( u"Speaker: %s" % obj.speaker )
 
         if obj.series:
-            tmp.append( "Series: %s" % obj.series )
+            tmp.append( u"Series: %s" % obj.series )
 
         if obj.abstract:
             tmp.append("")
-            tmp.append( "ABSTRACT: %s" % obj.abstract )
+            tmp.append( u"ABSTRACT: %s" % obj.abstract )
 
-        return "\n".join( tmp )
+        return u"\n".join( tmp )
 
     def get_location_value( self, obj ):
         return obj.location

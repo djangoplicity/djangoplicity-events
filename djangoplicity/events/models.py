@@ -63,20 +63,15 @@ EVENT_TYPES = [
     ( 'C', 'Conference' ),
     ( 'E', 'Event' ),
     ( 'EX', 'Exhibition' ),
-    ( 'L', 'Lecture' ),
-    ( 'M', 'Meeting' ),
     ( 'PE', 'Press Event' ),
     ( 'T', 'Talk' ),
-    ( 'W', 'Workshop' ),
 ]
 
 EVENT_TYPES += EDUCATIONAL_EVENT_TYPES
 
 PUBLIC_AUDIENCE_TYPES = [
     ( 'P', 'Public' ),
-    ( 'IN', 'Industry' ),
     ( 'S', 'Science' ),
-    ( 'SI', 'Science Internal' ),
 ]
 
 

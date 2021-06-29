@@ -125,7 +125,7 @@ class EventAdmin( DjangoplicityModelAdmin ):
         return formfield
 
 class CalendarAdmin(admin.ModelAdmin):
-    list_display = ('type', 'url')
+    list_display = ('type', 'audience', 'url')
 
 
 def register_with_admin( admin_site ):

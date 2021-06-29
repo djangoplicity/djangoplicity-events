@@ -1,8 +1,12 @@
 {% load i18n %}
-<ul>
-    {% for calendar in calendars %}
+{% regroup calendars by get_audience_display as calendar_list %}
+{% for audience in calendar_list %}
+    <h5>{{ audience.grouper }}</h5>
+    <ul>
+        {% for calendar in audience.list %}
         <li>
-            <a target="_blank" href="{{ calendar.url|safe }}">{{ calendar.get_type_display }}</a>
+            <a target="_blank" href="{{ calendar.get_timezome_url|safe }}">{{ calendar.get_type_display }}</a>
         </li>
-    {% endfor %}
-</ul>
+        {% endfor %}
+    </ul>
+{% endfor %}

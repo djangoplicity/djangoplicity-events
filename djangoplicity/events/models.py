@@ -100,6 +100,14 @@ class Calendar(models.Model):
     def __unicode__( self ):
         return "%s: %s" % (self.type, self.url)
 
+    def get_timezome_url(self):
+        if self.type != 'H':
+            return self.url
+        d = self.url.split('ctz=')
+        if len(d) >= 1:
+            url = d[0] + 'ctz=' + self.timezone
+            return url
+
 
 class EventSite( models.Model ):
     """ Defines a given site """

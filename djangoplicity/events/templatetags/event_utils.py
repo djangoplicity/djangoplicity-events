@@ -107,7 +107,8 @@ def show_event_upcoming_options(context):
 
 @register.inclusion_tag('calendar_options.html', takes_context=True)
 def show_calendars(context):
-    calendars = Calendar.objects.all()
+    audiences = context.request.GET.getlist('audience', ['P'])
+    calendars = Calendar.objects.filter(audience__in = audiences)
     return { 'calendars': calendars }
 
 def is_educational_event(event_type):

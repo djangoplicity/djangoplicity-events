@@ -62,6 +62,7 @@ EDUCATIONAL_EVENT_TYPES = [
 EVENT_TYPES = [
     ( 'C', 'Conference' ),
     ( 'E', 'Event' ),
+    ( 'M', 'Meeting' ),
     ( 'EX', 'Exhibition' ),
     ( 'PE', 'Press Event' ),
     ( 'T', 'Talk' ),
@@ -93,13 +94,15 @@ EVENTSITE_TZS = [( tz, tz ) for tz in pytz.all_timezones]
 class Calendar(models.Model):
     type = models.CharField( max_length=1, choices=CALENDAR_TYPES)
     url = models.URLField( verbose_name="Calendar URL", max_length=255)
+    audience = models.CharField( max_length=2, choices=AUDIENCE_TYPES, default='P', help_text="The calendar audience is used to control which audience is targetted." )
+    timezone = models.CharField( max_length=40, default='Europe/Berlin', choices=EVENTSITE_TZS )
 
     def __unicode__( self ):
         return "%s: %s" % (self.type, self.url)
 
 
 class EventSite( models.Model ):
-    """ Defines a given site - e.g. Garching, Santiago or Paranal"""
+    """ Defines a given site """
     name = models.CharField( max_length=255 )
     slug = models.SlugField()
     timezone = models.CharField( max_length=40, default='Europe/Berlin', choices=EVENTSITE_TZS )

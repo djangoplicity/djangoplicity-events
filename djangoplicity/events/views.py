@@ -29,3 +29,20 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE
 #
+
+from djangoplicity.archives.views import GenericDetailView
+
+
+class EventEmbedDetailView( GenericDetailView ):
+    """
+    Archive detail view for embed Event
+
+    Will just use detail_embed.html to render the event instead of detail.html
+
+    The view is installed in options.py
+    """
+    def vary_on( self, request, model, obj, state, admin_rights, **kwargs ):
+        return ['embed', ]
+
+    def select_template( self, model, obj, **kwargs ):
+        return super( EventEmbedDetailView, self ).select_template( model, obj, suffix='_embed' )

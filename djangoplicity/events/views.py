@@ -37,7 +37,7 @@ class EventEmbedDetailView( GenericDetailView ):
     """
     Archive detail view for embed Event
 
-    Will just use detail_embed.html to render the press release instead of detail.html
+    Will just use detail_embed.html to render the event instead of detail.html
 
     The view is installed in options.py
     """

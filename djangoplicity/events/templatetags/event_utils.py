@@ -132,7 +132,7 @@ def request_contain_all_educational_events(event_types):
 
 def cast_event_title(title):
     # not append events word
-    if title.lower() in ['exhibition', 'talk', 'conference']:
+    if title.lower() in ['exhibition', 'talk', 'conference', 'meeting']:
         return title + 's'
 
     if title.lower().endswith("event"):

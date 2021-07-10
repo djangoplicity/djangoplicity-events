@@ -251,13 +251,14 @@ class Event( ArchiveModel, models.Model ):
 
     def get_time_in_string(self):
         date = ''
-        if (self.end_date - self.start_date).days == 0:
-            date = self._get_date_tz(self.start_date).strftime("%A, %d %B %Y %-I:%M %P")
-            date += self._get_date_tz(self.end_date).strftime(" - %-I:%M %P %Z")
+        if (self.end_date - self.start_date).days == 0 and self.end_date.day == self.start_date.day:
+            date = formats.date_format(self._get_date_tz(self.start_date), "l, d F Y P")
+            date += formats.date_format(self._get_date_tz(self.end_date), " — P T")
+            return date
         else:
-            date = self._get_date_tz(self.start_date).strftime("%A, %d %B %Y %-I:%M %P %Z")
-            date += " - %s" % self._get_date_tz(self.end_date).strftime("%A, %d %B %Y %-I:%M %P %Z")
-        return date
+            date = formats.date_format(self._get_date_tz(self.start_date), "l, d F Y P T")
+            date += formats.date_format(self._get_date_tz(self.start_date), " - l, d F Y P T")
+            return date
 
     start_date_tz = property( _get_start_date_tz )
     end_date_tz = property( _get_end_date_tz )

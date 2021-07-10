@@ -258,7 +258,7 @@ class Event( ArchiveModel, models.Model ):
         else:
             date = formats.date_format(self._get_date_tz(self.start_date), "l, d F Y P T")
             date += formats.date_format(self._get_date_tz(self.start_date), " - l, d F Y P T")
-            return date
+        return date
 
     start_date_tz = property( _get_start_date_tz )
     end_date_tz = property( _get_end_date_tz )

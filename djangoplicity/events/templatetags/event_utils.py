@@ -4,6 +4,15 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 register = template.Library()
 
+
+def get_extra_params(request):
+    extra_params = ''
+    for param in request.GET:
+        if param not in ['upcoming', 'type', 'audience']:
+            extra_params = "%s=%s" % (param, request.GET.get(param))
+    return extra_params
+
+
 @register.inclusion_tag('audience_options.html', takes_context=True)
 def show_event_audiences(context):
     choices = PUBLIC_AUDIENCE_TYPES
@@ -32,7 +41,8 @@ def show_event_audiences(context):
         'choices': choices,
         'current_params': current_params,
         'audience': audience,
-        'all': all_audiences
+        'all': all_audiences,
+        'extra_params': get_extra_params(context.request)
         }
 
 @register.inclusion_tag('event_type_options.html', takes_context=True)
@@ -63,7 +73,8 @@ def show_event_types(context):
         'choices': choices,
         'current_params': current_params,
         'types': event_types,
-        'all': all_types
+        'all': all_types,
+        'extra_params': get_extra_params(context.request)
         }
 
 @register.inclusion_tag('upcoming_options.html', takes_context=True)
@@ -102,7 +113,8 @@ def show_event_upcoming_options(context):
         'choices': choices,
         'current_params': current_params,
         'upcoming': upcoming,
-        'all': all_types
+        'all': all_types,
+        'extra_params': get_extra_params(context.request)
         }
 
 @register.inclusion_tag('calendar_options.html', takes_context=True)

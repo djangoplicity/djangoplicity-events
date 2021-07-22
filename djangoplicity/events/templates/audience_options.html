@@ -1,16 +1,16 @@
 {% load i18n %}
 <ul>
     {% if audience is None %}
-        <li><strong><a href="{{ all }}" style="color: black;">{% trans 'All' %}</a></strong></li>
+        <li><strong><a href="{{ all }}{% if extra_params %}?{{ extra_params }}{% endif %}" style="color: black;">{% trans 'All' %}</a></strong></li>
     {% else %}
-        <li><a href="{{ all }}">{% trans 'All' %}</a></li>
+        <li><a href="{{ all }}{% if extra_params %}?{{ extra_params }}{% endif %}">{% trans 'All' %}</a></li>
     {% endif %}
 
     {% for key, value in choices %}
         {% if key == audience %}
-            <li><strong><a href="?audience={{ key }}{{ current_params }}" style="color: black;">{{ value }}</a></strong></li>
+            <li><strong><a href="?audience={{ key }}{{ current_params }}{% if extra_params %}&{{ extra_params }}{% endif %}" style="color: black;">{{ value }}</a></strong></li>
         {% else %}
-            <li><a href="?audience={{ key }}{{ current_params }}">{{ value }}</a></></li>
+            <li><a href="?audience={{ key }}{{ current_params }}{% if extra_params %}&{{ extra_params }}{% endif %}">{{ value }}</a></></li>
         {% endif %}
     {% endfor %}
 </ul>

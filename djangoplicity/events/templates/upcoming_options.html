@@ -1,9 +1,9 @@
 {% load i18n %}
 <ul>
     {% if upcoming is None %}
-        <li><strong><a href="{{ all }}{% if extra_params %}?{{ extra_params }}{% endif %}" style="color: black;">{% trans 'All' %}</a></strong></li>
+        <li><strong><a href="{{ all }}" style="color: black;">{% trans 'All' %}</a></strong></li>
     {% else %}
-        <li><a href="{{ all }}{% if extra_params %}?{{ extra_params }}{% endif %}">{% trans 'All' %}</a></li>
+        <li><a href="{{ all }}">{% trans 'All' %}</a></li>
     {% endif %}
 
     {% for key, value in choices %}

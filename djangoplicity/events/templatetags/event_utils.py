@@ -12,6 +12,17 @@ def get_extra_params(request):
             extra_params = "%s=%s" % (param, request.GET.get(param))
     return extra_params
 
+def get_all_params(current_params, extra_params):
+    all = ''
+    # add current params
+    all = '?%s' % current_params if current_params else ''
+
+    # add extra params
+    if all:
+        all += '&%s' % extra_params if extra_params else ''
+    else:
+        all += '?%s' % extra_params if extra_params else ''
+    return all
 
 @register.inclusion_tag('audience_options.html', takes_context=True)
 def show_event_audiences(context):
@@ -32,7 +43,8 @@ def show_event_audiences(context):
     current_params += '&upcoming=%s' % upcoming if upcoming else ''
 
     # All
-    all_audiences = '?%s' % current_params if current_params != '' else '.'
+    extra_params = get_extra_params(context.request)
+    all_audiences = get_all_params(current_params, extra_params)
 
     if current_params != '':
         current_params = '&%s' % current_params
@@ -42,7 +54,7 @@ def show_event_audiences(context):
         'current_params': current_params,
         'audience': audience,
         'all': all_audiences,
-        'extra_params': get_extra_params(context.request)
+        'extra_params': extra_params
         }
 
 @register.inclusion_tag('event_type_options.html', takes_context=True)
@@ -64,7 +76,8 @@ def show_event_types(context):
     current_params += '&upcoming=%s' % upcoming if upcoming else ''
 
     # All
-    all_types = '?%s' % current_params if current_params != '' else '.'
+    extra_params = get_extra_params(context.request)
+    all_types = get_all_params(current_params, extra_params)
 
     if current_params != '':
         current_params = '&%s' % current_params
@@ -74,7 +87,7 @@ def show_event_types(context):
         'current_params': current_params,
         'types': event_types,
         'all': all_types,
-        'extra_params': get_extra_params(context.request)
+        'extra_params': extra_params
         }
 
 @register.inclusion_tag('upcoming_options.html', takes_context=True)
@@ -104,7 +117,8 @@ def show_event_upcoming_options(context):
             current_params += '&type=%s' % event_type
 
     # All
-    all_types = '?%s' % current_params if current_params != '' else '.'
+    extra_params = get_extra_params(context.request)
+    all_types = get_all_params(current_params, extra_params)
 
     if current_params != '':
         current_params = '&%s' % current_params
@@ -114,7 +128,7 @@ def show_event_upcoming_options(context):
         'current_params': current_params,
         'upcoming': upcoming,
         'all': all_types,
-        'extra_params': get_extra_params(context.request)
+        'extra_params': extra_params,
         }
 
 @register.inclusion_tag('calendar_options.html', takes_context=True)

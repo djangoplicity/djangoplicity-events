@@ -9,7 +9,9 @@ def get_extra_params(request):
     extra_params = ''
     for param in request.GET:
         if param not in ['upcoming', 'type', 'audience']:
-            extra_params = "%s=%s" % (param, request.GET.get(param))
+            if extra_params:
+                extra_params += "&"
+            extra_params += "%s=%s" % (param, request.GET.get(param))
     return extra_params
 
 def get_all_params(current_params, extra_params):

@@ -193,6 +193,8 @@ class Event( ArchiveModel, models.Model ):
         return tz.localize(date)
 
     def localize(self, date, tz):
+        # all timezones list:
+        # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
         if tz and tz in pytz.all_timezones:
             return do_timezone(date, tz)
         return date

@@ -60,6 +60,7 @@ class EventSerializer( SimpleSerializer ):
         'additional_information',
         'url',
     )
+    timezone = None
 
     def get_alternative_image_url_value(self, obj):
         return obj.image_url
@@ -77,6 +78,12 @@ class EventSerializer( SimpleSerializer ):
 
     def get_url_value( self, obj ):
         return 'https://%s%s' % (get_current_site(None), obj.get_absolute_url())
+
+    def get_start_date_tz_value(self, obj):
+        return obj.localize(obj.start_date_tz, self.timezone)
+
+    def get_end_date_tz_value(self, obj):
+        return obj.localize(obj.end_date_tz, self.timezone)
 
 
 class ICalEventSerializer( SimpleSerializer ):

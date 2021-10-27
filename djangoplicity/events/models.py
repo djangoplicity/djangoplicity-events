@@ -45,6 +45,7 @@ from django.utils.timezone import make_aware
 from django_countries.fields import CountryField
 from django.core.validators import URLValidator
 from django.core.urlresolvers import reverse
+from django.templatetags.tz import do_timezone
 import pytz
 import re
 
@@ -190,6 +191,11 @@ class Event( ArchiveModel, models.Model ):
         else:
             tz = pytz.timezone(settings.TIME_ZONE)
         return tz.localize(date)
+
+    def localize(self, date, tz):
+        if tz and tz in pytz.all_timezones:
+            return do_timezone(date, tz)
+        return date
 
     def get_dates( self ):
         if self.end_date and self.start_date:

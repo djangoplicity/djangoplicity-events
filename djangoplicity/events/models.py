@@ -268,7 +268,7 @@ class Event( ArchiveModel, models.Model ):
             date += formats.date_format(self._get_date_tz(self.end_date), " - l, d F Y P T")
         return date
 
-    def get_date_in_string(self):
+    def get_date_range_in_string(self):
         date = ''
         if (self.end_date - self.start_date).days == 0 and self.end_date.day == self.start_date.day:
             date = formats.date_format(self._get_date_tz(self.start_date), "d F Y P")

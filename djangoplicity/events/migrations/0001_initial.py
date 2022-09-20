@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 import djangoplicity.archives.base
 import django_countries.fields
+import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
@@ -33,7 +34,7 @@ class Migration(migrations.Migration):
                 ('published', models.BooleanField(default=False, db_index=True, verbose_name='Published')),
                 ('last_modified', models.DateTimeField(auto_now=True, verbose_name='Last modified')),
                 ('created', models.DateTimeField(auto_now_add=True, verbose_name='Created')),
-                ('image', models.ForeignKey(blank=True, to='media.Image', help_text=b'Image id of image to display together with this event.', null=True)),
+                ('image', models.ForeignKey(blank=True, to='media.Image', on_delete=django.db.models.deletion.SET_NULL, help_text=b'Image id of image to display together with this event.', null=True)),
             ],
             options={
                 'ordering': ('start_date',),
@@ -84,19 +85,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='eventlocation',
             name='site',
-            field=models.ForeignKey(blank=True, to='events.EventSite', null=True),
+            field=models.ForeignKey(blank=True, to='events.EventSite', on_delete=django.db.models.deletion.SET_NULL, null=True),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='event',
             name='location',
-            field=models.ForeignKey(blank=True, to='events.EventLocation', null=True),
+            field=models.ForeignKey(blank=True, to='events.EventLocation', on_delete=django.db.models.deletion.SET_NULL, null=True),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='event',
             name='series',
-            field=models.ForeignKey(blank=True, to='events.EventSeries', null=True),
+            field=models.ForeignKey(blank=True, to='events.EventSeries', on_delete=django.db.models.deletion.SET_NULL, null=True),
             preserve_default=True,
         ),
     ]

@@ -60,7 +60,7 @@ def _google_calendar_update(service, eventId, calendarId, oldCalendarId, body):
         try:
             # retreive the existing event
             existing = service.events().get(eventId=eventId, calendarId=oldCalendarId).execute()
-        except HttpError, err:
+        except HttpError as err:
             if err.resp.status == 404:
                 # if the event is not found, we will just create a new one
                 existing = None

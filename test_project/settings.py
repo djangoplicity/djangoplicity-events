@@ -70,8 +70,12 @@ WSGI_APPLICATION = 'test_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db', 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'djangoplicity-events',
+        'USER': 'djangoplicity-events',
+        'PASSWORD': 'djangoplicity-events',
+        'HOST': 'djangoplicity-events-db',
+        'PORT': '5432',
     }
 }
 

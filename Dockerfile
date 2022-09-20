@@ -1,21 +1,33 @@
-FROM python:2.7-slim-buster
+FROM python:3.8-slim-buster
 
 RUN apt-get update && apt-get install -y \
     gcc \
-    git
+    git \
+    libldap2-dev \
+    libsasl2-dev \
+    libssl-dev \
+    libpq-dev \
+    python-dev
 
 RUN mkdir /app
 WORKDIR /app
 
 # Cache requirements and install them
-COPY test_project/requirements.txt .
-RUN pip install -r requirements.txt --find-links https://www.djangoplicity.org/repository/packages/
+COPY requirements/ requirements/
+COPY requirements.txt .
+
+RUN pip install -r requirements.txt
 
 # Create app required directories
 RUN mkdir -p tmp
 
 # Final required files
+COPY scripts/ scripts/
+RUN chmod +x scripts/command-dev.sh
+
 COPY djangoplicity/ djangoplicity/
 COPY test_project/ test_project/
+COPY setup.py .
+COPY tox.ini .
 COPY .coveragerc .
 COPY manage.py .

@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='calendar',
             name='audience',
-            field=models.CharField(choices=[(b'I', b'Internal'), (b'P', b'Public'), (b'S', b'Science')], default=b'P', help_text=b'The calendar audience is used to control which audience is targetted.', max_length=2),
+            field=models.CharField(choices=[('I', 'Internal'), ('P', 'Public'), ('S', 'Science')], default='P', help_text=b'The calendar audience is used to control which audience is targetted.', max_length=2),
         ),
         migrations.AddField(
             model_name='calendar',

@@ -1,0 +1,8 @@
+# Djangoplicity actions
+git+https://@github.com/djangoplicity/djangoplicity-actions@release/django3
+
+# Djangoplicity
+git+https://@github.com/djangoplicity/djangoplicity.git@release/django3
+
+# PostgreSQL python client
+psycopg2-binary==2.8.5

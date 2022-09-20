@@ -36,15 +36,13 @@ Models for the djangoplicity event app.
 
 from django.db import models
 from django.utils import dateformat, formats
-from django.utils.translation import ugettext_lazy as _
-from djangoplicity.utils.datetimes import timezone
+from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
-from django.utils.timezone import make_aware
 from django_countries.fields import CountryField
 from django.core.validators import URLValidator
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.templatetags.tz import do_timezone
 import pytz
 import re
@@ -141,7 +139,7 @@ class EventLocation( models.Model ):
     name = models.CharField( max_length=255 )
     slug = models.SlugField()
     country = CountryField(default='DE')
-    site = models.ForeignKey( EventSite, blank=True, null=True )
+    site = models.ForeignKey(EventSite, blank=True, null=True, on_delete=models.SET_NULL)
 
     def __unicode__( self ):
         s = self.name
@@ -157,15 +155,15 @@ class Event( ArchiveModel, models.Model ):
     """ Defines an event or meeting """
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
-    location = models.ForeignKey( EventLocation, blank=True, null=True )
-    series = models.ForeignKey( EventSeries, blank=True, null=True )
+    location = models.ForeignKey(EventLocation, blank=True, null=True, on_delete=models.SET_NULL)
+    series = models.ForeignKey(EventSeries, blank=True, null=True, on_delete=models.SET_NULL)
     type = models.CharField( max_length=2, db_index=True, choices=EVENT_TYPES, default='T', help_text="The event and meeting type is used to control where the event is displayed on the website." )
     audience = models.CharField( max_length=2, db_index=True, choices=AUDIENCE_TYPES, default='P', help_text="The event and meeting audience is used to control which audience is targetted." )
     title = models.CharField( max_length=255 )
     speaker = models.CharField( max_length=255, blank=True )
     affiliation = models.CharField( max_length=255, blank=True, help_text="Affiliation of the speaker - please keep short if possible." )
     abstract = models.TextField( blank=True )
-    image = models.ForeignKey( Image, blank=True, null=True, help_text="Image id of image to display together with this event." )
+    image = models.ForeignKey(Image, blank=True, null=True, help_text="Image id of image to display together with this event.", on_delete=models.SET_NULL)
     registration = models.CharField( verbose_name="Registration", blank=True, null=True, max_length=255, help_text="Use this to add a registration URL or information about the registration to the event." )
     webpage_url = models.URLField( verbose_name="Webpage URL", blank=True, null=True, max_length=255, help_text="Link to webpage of this event if it exists." )
     image_url = models.URLField( verbose_name="Image URL", blank=True, null=True, max_length=255, help_text="Alternative to display an image from this URL instead in case the image is not in the Images Archive." )

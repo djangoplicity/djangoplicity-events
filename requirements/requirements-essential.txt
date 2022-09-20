@@ -1,0 +1,32 @@
+Django==3.1
+setuptools
+django-crispy-forms==1.8.1
+django-dirtyfields==1.4.1
+hashids
+html2text
+trml2pdf==0.5.0
+
+# Asynchronous Task Queue
+celery==4.3.0
+
+# RSA > 4.0 does not support Python 3 (This is a django dependency)
+rsa==4.0
+
+# Faker
+Faker==3.0.1
+
+# Asset packaging library for Django
+django-pipeline==2.0.7
+
+django-debug-toolbar==3.2.4
+
+django_countries
+
+# PostgreSQL python client
+sqlparse
+
+ipython==7.19.0
+
+six==1.16.0
+
+django-mptt==0.13.4

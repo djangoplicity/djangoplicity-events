@@ -1,36 +1,33 @@
-version: "3.4"
-
-x-common: &common
-  build: .
-  volumes:
-    - media:/app/media
-    - import:/app/import
-    - ./djangoplicity:/app/djangoplicity
-    - ./test_project:/app/test_project
-    - ./local:/app/local
-    - ./htmlcov:/app/htmlcov
-    - ./db:/app/db
-    - ./.coveragerc:/app/.coveragerc
+version: "3"
 
 services:
   web:
-    <<: *common
+    build: .
     container_name: djangoplicity-events
-    command: ["./test_project/scripts/command-dev.sh"]
+    command: ["./scripts/command-dev.sh"]
+    volumes:
+      - ./djangoplicity:/app/djangoplicity
+      - ./test_project/:/app/test_project
+      - ./htmlcov:/app/htmlcov
+      - ./.coveragerc:/app/.coveragerc
+      - ./tests:/app/tests
     ports:
-      - "8005:8000"
+      - "8001:8000"
+    depends_on:
+      - db
   
-  # TODO: Currently not being used, configure test_project to use this database
-  # db:
-  #   image: postgres:10.5
-  #   container_name: djangoplicity-db
-  #   environment:
-  #     POSTGRES_DB: djangoplicity
-  #     POSTGRES_USER: djangoplicity
-  #     POSTGRES_PASSWORD: djangoplicity
-  #   ports:
-  #     - "60000:5432"
+  db:
+    image: postgres:10.5
+    container_name: djangoplicity-events-db
+    restart: always
+    environment:
+      POSTGRES_DB: djangoplicity-events
+      POSTGRES_USER: djangoplicity-events
+      POSTGRES_PASSWORD: djangoplicity-events
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "51432:5432"
 
 volumes:
-  import:
-  media:
+  pgdata:

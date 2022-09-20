@@ -20,7 +20,7 @@ django-pipeline==2.0.7
 
 django-debug-toolbar==3.2.4
 
-django_countries
+django-countries==7.3.2
 
 # PostgreSQL python client
 sqlparse

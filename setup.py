@@ -40,7 +40,7 @@ setup(
     zip_safe=False,
     install_requires=[
         'setuptools',
-        'django_countries == 5.1.1',
+        'django_countries == 7.3.2',
     ],
 
     # metadata for upload to PyPI

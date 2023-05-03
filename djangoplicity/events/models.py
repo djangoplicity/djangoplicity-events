@@ -96,7 +96,7 @@ class Calendar(models.Model):
     audience = models.CharField( max_length=2, choices=AUDIENCE_TYPES, default='P', help_text="The calendar audience is used to control which audience is targetted." )
     timezone = models.CharField( max_length=40, default='Europe/Berlin', choices=EVENTSITE_TZS )
 
-    def __unicode__( self ):
+    def __str__( self ):
         return "%s: %s" % (self.type, self.url)
 
     def get_timezome_url(self):
@@ -114,7 +114,7 @@ class EventSite( models.Model ):
     slug = models.SlugField()
     timezone = models.CharField( max_length=40, default='Europe/Berlin', choices=EVENTSITE_TZS )
 
-    def __unicode__( self ):
+    def __str__( self ):
         return self.name
 
     class Meta:
@@ -130,7 +130,7 @@ class EventSeries( models.Model ):
         verbose_name_plural = _( 'event series' )
         ordering = ('name',)
 
-    def __unicode__( self ):
+    def __str__( self ):
         return self.name
 
 
@@ -141,7 +141,7 @@ class EventLocation( models.Model ):
     country = CountryField(default='DE')
     site = models.ForeignKey(EventSite, blank=True, null=True, on_delete=models.SET_NULL)
 
-    def __unicode__( self ):
+    def __str__( self ):
         s = self.name
         if self.site:
             s += ' | %s' % self.site
@@ -172,7 +172,7 @@ class Event( ArchiveModel, models.Model ):
     additional_information = models.CharField( max_length=255, blank=True, help_text="Short additional information to be displayed on reception screen." )
     gcal_key = models.CharField( max_length=255, blank=True, null=True, )
 
-    def __unicode__( self ):
+    def __str__( self ):
         return "%s: %s (%s, %s)" % ( self.get_type_display(), self.title, self.location, self.start_date )
 
     def _get_date_tz( self, date ):

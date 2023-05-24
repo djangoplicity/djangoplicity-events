@@ -116,7 +116,7 @@ def google_calendar_sync(instance_id, _old_audience, _old_site_slug):
     data['transparency'] = 'transparent'
 
     if instance.location:
-        data['location'] = unicode(instance.location)
+        data['location'] = str(instance.location)
 
     if instance.abstract:
         # Convert the HTML to text:

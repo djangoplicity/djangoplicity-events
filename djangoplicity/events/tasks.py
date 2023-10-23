@@ -47,10 +47,13 @@ logger = logging.getLogger(__name__)
 def _google_calendar_service():
     client_email = settings.GCAL_EMAIL
     private_key_file = settings.GCAL_PRIVATE_KEY
-    credentials = ServiceAccountCredentials.from_p12_keyfile(client_email,
-        private_key_file, scopes='https://www.googleapis.com/auth/calendar')
+    credentials = ServiceAccountCredentials.from_p12_keyfile(
+        client_email,
+        private_key_file, 
+        scopes='https://www.googleapis.com/auth/calendar'
+    )
     http_auth = credentials.authorize(Http())
-    service = build(serviceName='calendar', version='v3', http=http_auth)
+    service = build(serviceName='calendar', version='v3', http=http_auth, cache_discovery=False)
     return service
 
 
@@ -118,10 +121,18 @@ def google_calendar_sync(instance_id, _old_audience, _old_site_slug):
     if instance.location:
         data['location'] = str(instance.location)
 
+    data['description'] = ''
     if instance.abstract:
         # Convert the HTML to text:
         h2t = DjangoplicityHTML2Text()
         data['description'] = h2t.handle(instance.abstract.replace('&nbsp;', ' '))
+
+    if instance.webpage_url:
+        # Add to the description in a new line if the description is not empty:
+        if data['description']:
+            data['description'] += '\n\n'
+        data['description'] += 'Event URL: %s' % instance.webpage_url
+        
 
     # Get calendar to update
     calendarId = instance.get_calendar()

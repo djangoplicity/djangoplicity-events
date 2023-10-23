@@ -67,6 +67,8 @@ def _google_calendar_update(service, eventId, calendarId, oldCalendarId, body):
             if err.resp.status == 404:
                 # if the event is not found, we will just create a new one
                 existing = None
+            else:
+                raise err
 
     if existing:
         if oldCalendarId != calendarId:

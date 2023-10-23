@@ -34,7 +34,7 @@
 Models for the djangoplicity event app.
 """
 
-from django.db import models
+from django.db import models, transaction
 from django.utils import dateformat, formats
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
@@ -320,8 +320,7 @@ def event_post_save(sender, instance, **kwargs):
     update_fields = kwargs['update_fields']
     if not update_fields or not(len(update_fields) == 1 and 'gcal_key' in update_fields):
         # don't sync if we're only saving the 'gcal_key'
-        # tasks.google_calendar_sync.delay(instance)
-        tasks.google_calendar_sync.delay(instance.id, instance._old_audience, instance._old_site_slug)
+        transaction.on_commit(lambda: tasks.google_calendar_sync.delay(instance.id, instance._old_audience, instance._old_site_slug))
 
 
 @receiver(post_delete, sender=Event)

@@ -101,9 +101,9 @@ class EventAdmin( DjangoplicityModelAdmin ):
     fieldsets = (
         ( 'Event or meeting', { 'fields': ( 'type', 'series', 'audience', 'title', 'speaker', 'affiliation', 'abstract', 'image', 'image_url', 'webpage_url', 'registration', 'video_url', 'slides_url', 'additional_information' ) } ),
         ( 'Location and date', { 'fields': ( 'start_date', 'end_date', 'location', ) } ),
-        ( 'Publishing', {'fields': ( 'published', 'last_modified', 'created' ), } ),
+        ( 'Publishing', {'fields': ( 'published', 'gcal_key', 'last_modified', 'created' ), } ),
     )
-    readonly_fields = ( 'last_modified', 'created', )
+    readonly_fields = ( 'last_modified', 'created', 'gcal_key')
     raw_id_fields = ( 'image', )
     ordering = ('-start_date',)
 

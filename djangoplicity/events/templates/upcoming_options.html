@@ -8,9 +8,9 @@
 
     {% for key, value in choices %}
         {% if key == upcoming %}
-            <li><strong><a href="?upcoming={{ key }}{{ current_params }}{% if extra_params %}&{{ extra_params }}{% endif %}" style="color: black;">{{ value }}</a></strong></li>
+            <li><strong><a href="/public/events/?upcoming={{ key }}{{ current_params }}{% if extra_params %}&{{ extra_params }}{% endif %}" style="color: black;">{{ value }}</a></strong></li>
         {% else %}
-            <li><a href="?upcoming={{ key }}{{ current_params }}{% if extra_params %}&{{ extra_params }}{% endif %}">{{ value }}</a></></li>
+            <li><a href="/public/events/?upcoming={{ key }}{{ current_params }}{% if extra_params %}&{{ extra_params }}{% endif %}">{{ value }}</a></></li>
         {% endif %}
     {% endfor %}
 </ul>

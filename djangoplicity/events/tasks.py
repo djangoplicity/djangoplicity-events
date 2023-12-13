@@ -35,30 +35,28 @@ from djangoplicity.utils.html_to_text import DjangoplicityHTML2Text
 from celery.task import task
 
 from django.conf import settings
-from oauth2client.service_account import ServiceAccountCredentials
 
-from httplib2 import Http
-from apiclient.discovery import build
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
 import logging
 
 logger = logging.getLogger(__name__)
 
 
 def _google_calendar_service():
-    client_email = settings.GCAL_EMAIL
-    private_key_file = settings.GCAL_PRIVATE_KEY
-    credentials = ServiceAccountCredentials.from_p12_keyfile(
-        client_email,
-        private_key_file, 
-        scopes='https://www.googleapis.com/auth/calendar'
+    credentials = service_account.Credentials.from_service_account_file(
+        settings.GCAL_PRIVATE_KEY,
+        scopes=['https://www.googleapis.com/auth/calendar'],
     )
-    http_auth = credentials.authorize(Http())
-    service = build(serviceName='calendar', version='v3', http=http_auth, cache_discovery=False)
+    if hasattr(settings, 'GCAL_EMAIL') and settings.GCAL_EMAIL:
+        credentials = credentials.with_subject(settings.GCAL_DELEGATED_ACCOUNT)
+    
+    service = build('calendar', 'v3', credentials=credentials)
     return service
 
 
 def _google_calendar_update(service, eventId, calendarId, oldCalendarId, body):
-    from googleapiclient.http import HttpError
+    from googleapiclient.errors import HttpError
     if eventId:
         try:
             # retreive the existing event
@@ -134,7 +132,7 @@ def google_calendar_sync(instance_id, _old_audience, _old_site_slug):
         if data['description']:
             data['description'] += '\n\n'
         data['description'] += 'Event URL: %s' % instance.webpage_url
-        
+
 
     # Get calendar to update
     calendarId = instance.get_calendar()

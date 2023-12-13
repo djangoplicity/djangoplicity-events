@@ -41,6 +41,9 @@ setup(
     install_requires=[
         'setuptools',
         'django_countries == 7.3.2',
+        'google-api-python-client==2.92.0',
+        'google-auth-httplib2==0.1.0',
+        'google-auth-oauthlib==1.0.0'
     ],
 
     # metadata for upload to PyPI

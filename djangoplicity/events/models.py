@@ -139,6 +139,8 @@ class EventLocation( models.Model ):
     name = models.CharField( max_length=255 )
     slug = models.SlugField()
     country = CountryField(default='DE')
+    state = models.CharField(max_length=255, blank=True, null=True)
+    city = models.CharField(max_length=255, blank=True, null=True)
     site = models.ForeignKey(EventSite, blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__( self ):
@@ -152,6 +154,21 @@ class EventLocation( models.Model ):
 
 
 class Event( ArchiveModel, models.Model ):
+    ACCESS_TYPE_BY_INVITATION = 'BY_INVITATION'
+    ACCESS_TYPE_OPEN = 'OPEN'
+    ACCESS_TYPES = (
+        (ACCESS_TYPE_BY_INVITATION, _('By invitation')),
+        (ACCESS_TYPE_OPEN, _('Open'))
+    )
+
+    DAYTIME = 'DAYTIME'
+    NIGHTTIME = 'NIGHTTIME'
+
+    TIME_OF_DAY_TYPES = (
+        (DAYTIME, _('Day-time')),
+        (NIGHTTIME, _('Night-time')),
+    )
+
     """ Defines an event or meeting """
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
@@ -171,6 +188,8 @@ class Event( ArchiveModel, models.Model ):
     slides_url = models.URLField( verbose_name="Slides URL", blank=True, null=True, max_length=255, help_text="Link to slides for this event if any." )
     additional_information = models.CharField( max_length=255, blank=True, help_text="Short additional information to be displayed on reception screen." )
     gcal_key = models.CharField( max_length=255, blank=True, null=True, )
+    access = models.CharField( max_length=20, db_index=True, choices=ACCESS_TYPES, blank=True, null=True)
+    time_of_day = models.CharField( max_length=20, db_index=True, choices=TIME_OF_DAY_TYPES, blank=True, null=True)
 
     def __str__( self ):
         return "%s: %s (%s, %s)" % ( self.get_type_display(), self.title, self.location, self.start_date )

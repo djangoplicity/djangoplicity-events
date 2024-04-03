@@ -71,11 +71,11 @@ class BaseAdmin( admin.ModelAdmin ):
 
 
 class EventLocationAdmin( BaseAdmin ):
-    list_display = ( 'id', 'name', 'slug', 'country', 'site' )
-    list_editable = ( 'name', 'slug', 'country', 'site' )
-    search_fields = ( 'name', 'slug', 'country', 'site__name' )
+    list_display = ('id', 'name', 'slug', 'country', 'state', 'city', 'site')
+    list_editable = ('name', 'slug', 'country', 'state', 'city', 'site')
+    search_fields = ('name', 'slug', 'country', 'site__name' 'state', 'city')
     fieldsets = (
-        ( None, { 'fields': ( 'name', 'slug', 'country', 'site' ) } ),
+        ( None, {'fields': ('name', 'slug', 'country', 'site', 'state', 'city')}),
     )
 
 
@@ -99,7 +99,13 @@ class EventAdmin( DjangoplicityModelAdmin ):
     richtext_fields = ( 'abstract', )
     form = EventAdminForm
     fieldsets = (
-        ( 'Event or meeting', { 'fields': ( 'type', 'series', 'audience', 'title', 'speaker', 'affiliation', 'abstract', 'image', 'image_url', 'webpage_url', 'registration', 'video_url', 'slides_url', 'additional_information' ) } ),
+        ('Event or meeting', {
+            'fields': ('type', 'series', 'audience', 'title', 'speaker', 'affiliation',
+                       'abstract', 'image', 'image_url', 'webpage_url', 'registration',
+                       'video_url', 'slides_url', 'additional_information', 'access',
+                       'time_of_day')
+            }
+         ),
         ( 'Location and date', { 'fields': ( 'start_date', 'end_date', 'location', ) } ),
         ( 'Publishing', {'fields': ( 'published', 'gcal_key', 'last_modified', 'created' ), } ),
     )

@@ -1,0 +1,68 @@
+{% load i18n %}
+
+<div class="calendar">
+    <div class="container-fluid">
+        {% if events_by_year_month_day %}
+            {% for year, month_events in events_by_year_month_day.items %}
+                {% for month_name, day_events in month_events.items %}
+                    <h3 class="month-title mb-20" data-month="{{ month_name }}" data-year="{{ year }}">
+                        {{ month_name }} <small>({{ year }})</small>
+                    </h3>
+                    <div class="row">
+                        {% for day, events in day_events.items %}
+                            {% for event in events %}
+                                <div class="col-xs-12 col-sm-6 col-md-4">
+                                    <a href="{% url 'events_detail' event.id %}">
+                                        <div class="panel panel-default event-panel">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">{{ day }}</h4>
+                                            </div>
+                                            <div class="panel-body">
+                                                {% with image_url=event.image.resource_thumb300y.url|default:event.image_url %}
+                                                    {% if image_url %}
+                                                        <div class="col-xs-4 event-image"
+                                                             style="background-image: url('{{ image_url }}');">
+                                                        </div>
+                                                    {% endif %}
+                                                    <div
+                                                        class="{% if image_url %}col-xs-8{% else %}col-xs-12{% endif %} event-data">
+
+                                                        <h4 class="bold event-title">
+                                                            {{ event.title }}
+                                                        </h4>
+                                                        <div class="event-details">
+                                                        <span class="event-time">
+                                                            <em>
+                                                                <i class="glyphicon glyphicon-calendar"></i>
+                                                            <small>{{ event.get_time_in_string }}</small>
+                                                            </em>
+                                                        </span>
+                                                            <span class="event-location"><i
+                                                                class="glyphicon glyphicon-map-marker gray"></i> {{ event.location }}</span>
+                                                            {% if event.series %}
+                                                                <br>
+                                                                <span class="event-series">
+                                                                <i class="glyphicon glyphicon-bookmark"></i>
+                                                                <span class="text-muted">{{ event.series }}</span>
+                                                        </span>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                {% endwith %}
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        {% else %}
+            <div class="no-events">
+                <h3 class="text-center">{% trans "No events found" %}</h3>
+            </div>
+        {% endif %}
+    </div>
+</div>
+

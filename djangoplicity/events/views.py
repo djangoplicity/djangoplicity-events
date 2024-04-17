@@ -120,10 +120,9 @@ class CalendarView(ListView):
                     if city != 'all':
                         query.update({'location__city': city})
 
-        print(query)
         queryset = queryset.filter(**query)
-        print(queryset.count())
-        return queryset.order_by('start_date')
+
+        return queryset.order_by('start_date') if period != 'past' else queryset.order_by('-start_date')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -164,6 +163,7 @@ class CalendarView(ListView):
         context['events_by_year_month_day'] = defaultdict_to_dict(events_by_year_month_day)
         context['current_month'] = date_format(self.first_day_of_month, 'F')
         context['current_year'] = self.year
+        context['total_pages'] = p.num_pages
         return context
 
 

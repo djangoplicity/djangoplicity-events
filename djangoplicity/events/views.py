@@ -121,7 +121,7 @@ class CalendarView(ListView):
 
         # First day of the month
         self.first_day_of_month = datetime(self.year, month, 1)
-        print(f'period: {self.period}')
+
         # Get the current filters, month and year, ect. You can modify this to allow users to change the month/year.
         if self.period == 'past':
             queryset = queryset.filter(

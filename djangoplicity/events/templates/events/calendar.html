@@ -12,7 +12,7 @@
                         {% for day, events in day_events.items %}
                             {% for event in events %}
                                 <div class="col-xs-12 col-sm-6 col-md-4">
-                                    <a href="{% url event_detail_url event.id %}">
+                                    <a href="{% url event_detail_url event.id %}{% if pw %}?pw={{ pw }}{% endif %}">
                                         <div class="panel panel-default event-panel">
                                             <div class="panel-heading">
                                                 <h4 class="panel-title">{{ day }}</h4>

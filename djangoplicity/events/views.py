@@ -75,6 +75,7 @@ class CalendarView(ListView):
     site_embed = False
     site_internal = False
     period = 'upcoming'
+    pw = None
 
     def sanitize_slug(self, value):  # noqa
         """
@@ -101,6 +102,7 @@ class CalendarView(ListView):
         if self.site_internal:
             if check_internal_password(self.request):
                 queryset = queryset.filter(audience=INTERNAL_AUDIENCE_KEY)
+                self.pw = self.request.GET.get('pw', None)
             else:
                 return []
         else:
@@ -188,8 +190,10 @@ class CalendarView(ListView):
             )
         )
 
-        # Check if the URL path contains 'site_embed'
+        # Check if the URL path contains 'site_embed' and add password
         context['event_detail_url'] = 'events_detail_embed' if self.site_embed else 'events_detail'
+        if self.pw:
+            context['pw'] = self.pw
 
         # sort events by year, month, day
         for event in events_page:

@@ -164,44 +164,95 @@ class AllEventsQuery(AllPublicQuery):
         - calendar: return only events no more than 8 weeks in the past and all in t
         - year: return only events from the given year
         """
+        now = datetime.now()
         (qs, query_data) = super(AllEventsQuery, self).queryset(model, options, request, **kwargs)
-
         # Possible get parameters for the site_query
-        type = [ self._sanitize_slug(t).upper() for t in request.GET.getlist('type', '') ]
+        type = [self._sanitize_slug(t).upper() for t in request.GET.getlist('type', '')]
         series = self._sanitize_slug(request.GET.get('series', ''))
-        audience = [ self._sanitize_slug(t).upper() for t in request.GET.getlist('audience', '') ]
+        audience = [self._sanitize_slug(t).upper() for t in request.GET.getlist('audience', '')]
         calendar = request.GET.get('calendar', None)  # 0 for past, 1 for future
         year = request.GET.get('year', None)
+        month = request.GET.get('month', None)
         video_only = 'video' in request.GET
+
+        period = request.GET.get('period', 'upcoming')
+        access = request.GET.get('accessType', '')
+        audience_type = request.GET.get('audienceType', '')
+        time_of_day = request.GET.get('timeOfDay', None)
+        online = request.GET.get('online', 'false') == 'true'
+        country = request.GET.get('country', '')
+        state = request.GET.get('state', '')
+        city = request.GET.get('city', '')
 
         try:
             upcoming = int(request.GET.get('upcoming', None))  # 0 for past, 1 for future
+            if upcoming >= 1:
+                period = 'upcoming'
+            elif period == 0:
+                period = 'past'
         except (ValueError, TypeError):
             upcoming = None
 
-        now = datetime.now()
+        # Additional filters for 'access', 'time of day', 'location', and 'online' status
+        if access and access != 'all':
+            qs = qs.filter(access=access)
+        if time_of_day and time_of_day != 'all':
+            qs = qs.filter(time_of_day=time_of_day)
+        if online:
+            qs = qs.filter(location__name__icontains='online')
+        else:
+            if country and country != 'all':
+                qs = qs.filter(location__country=country)
+                if state and state != 'all':
+                    qs = qs.filter(location__state=state)
+                    if city and city != 'all':
+                        qs = qs.filter(location__city=city)
 
-        if type:
+        if type and type != 'all':
             qs = qs.filter(type__in=type)
-        if series:
+        if series and series != 'all':
             qs = qs.filter(series__slug=series)
+
         if audience:
             qs = qs.filter(audience__in=audience)
-        if upcoming is not None and year is None:
-            # We only filter by upcoming is year is not set
-            if upcoming == 0:
-                qs = qs.filter(Q(end_date__lte=now, end_date__isnull=False) | Q(start_date__lte=now, end_date__isnull=True))
-            elif upcoming == 1:
-                qs = qs.filter(Q(end_date__gte=now, end_date__isnull=False) | Q(start_date__gte=now, end_date__isnull=True))
+        elif audience_type:
+            qs = qs.filter(audience=audience_type)
+
+        if period:
+            if period == 'upcoming':
+                qs = qs.filter(
+                    Q(end_date__gte=now, end_date__isnull=False) |
+                    Q(start_date__gte=now, end_date__isnull=True))
+            elif period == 'past':
+                qs = qs.filter(
+                    Q(end_date__lte=now, end_date__isnull=False) |
+                    Q(start_date__lte=now, end_date__isnull=True))
+            elif period == 'since' and year is not None and month is not None:
+                try:
+                    first_day_of_month = datetime(
+                        year=int(year),
+                        month=int(month),
+                        day=1
+                    )
+                    qs = qs.filter(
+                        Q(end_date__gte=first_day_of_month, end_date__isnull=False) |
+                        Q(start_date__gte=first_day_of_month, end_date__isnull=True)
+                    )
+                except (TypeError, ValueError):
+                    pass
+
         if calendar and upcoming is None:
-            qs = qs.filter(Q(end_date__gte=(now - timedelta(weeks=8)), end_date__isnull=False) | Q(start_date__gte=(now - timedelta(weeks=8)), end_date__isnull=True))
+            qs = qs.filter(
+                Q(end_date__gte=(now - timedelta(weeks=8)), end_date__isnull=False) |
+                Q(start_date__gte=(now - timedelta(weeks=8)), end_date__isnull=True)
+            )
         if video_only:
             qs = qs.exclude(video_url='')
 
-        if year:
+        if year and not month:
             qs = qs.filter(start_date__year=year, start_date__lte=now)
 
-        if upcoming != 1:
+        if period == 'past':
             qs = qs.order_by('-start_date')
 
         return (qs, query_data)

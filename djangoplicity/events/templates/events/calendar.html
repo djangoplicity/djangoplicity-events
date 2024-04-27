@@ -12,7 +12,7 @@
                         {% for day, events in day_events.items %}
                             {% for event in events %}
                                 <div class="col-xs-12 col-sm-6 col-md-4">
-                                    <a href="{% url 'events_detail' event.id %}">
+                                    <a href="{% url event_detail_url event.id %}">
                                         <div class="panel panel-default event-panel">
                                             <div class="panel-heading">
                                                 <h4 class="panel-title">{{ day }}</h4>
@@ -34,18 +34,30 @@
                                                         <span class="event-time">
                                                             <em>
                                                                 <i class="glyphicon glyphicon-calendar"></i>
-                                                            <small>{{ event.get_time_in_string }}</small>
+                                                            <small class="font-extra-small">&ensp;{{ event.get_time_in_string }}</small>
                                                             </em>
                                                         </span>
-                                                            <span class="event-location"><i
-                                                                class="glyphicon glyphicon-map-marker gray"></i> {{ event.location }}</span>
+                                                            <span class="event-location">
+                                                                <small>
+                                                            <i class="glyphicon glyphicon-map-marker gray"></i>&ensp;{{ event.location }}
+                                                                    </small>
+                                                        </span>
                                                             {% if event.series %}
                                                                 <br>
                                                                 <span class="event-series">
-                                                                <i class="glyphicon glyphicon-bookmark"></i>
-                                                                <span class="text-muted">{{ event.series }}</span>
-                                                        </span>
+                                                                    <i class="glyphicon glyphicon-bookmark"></i>
+                                                                <span class="text-muted">&ensp;{{ event.series }}</span>
+                                                            </span>
                                                             {% endif %}
+                                                            <span>
+                                                            <br>
+                                                            <span>
+                                                                <i class="glyphicon glyphicon-tags"></i>
+                                                                <small
+                                                                    class="text-muted text-info">&ensp;{{ event.get_type_display }}</small>
+                                                            </span>
+                                                        </span>
+
                                                         </div>
                                                     </div>
                                                 {% endwith %}

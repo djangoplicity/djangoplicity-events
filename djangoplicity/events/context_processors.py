@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 from django.utils.formats import date_format
-from djangoplicity.events.models import Event, PUBLIC_AUDIENCE_TYPES, EventLocation, EventSeries
+from djangoplicity.events.models import Event, PUBLIC_AUDIENCE_TYPES, EventLocation, EventSeries, EVENT_TYPES
 from django_countries import countries
 
 
@@ -39,6 +39,7 @@ def event_constants(request):
         'CURRENT_MONTH': month,
         'CURRENT_MONTH_NAME': today.strftime('%B'),
         'DAY_TIMES': Event.TIME_OF_DAY_TYPES,
+        'TYPES': EVENT_TYPES,
         'ACCESS_TYPES': Event.ACCESS_TYPES,
         'AUDIENCE_TYPES': PUBLIC_AUDIENCE_TYPES,
         'TIME_OF_DAY_TYPES': Event.TIME_OF_DAY_TYPES,

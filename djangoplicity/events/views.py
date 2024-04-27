@@ -191,7 +191,11 @@ class CalendarView(ListView):
         )
 
         # Check if the URL path contains 'site_embed' and add password
-        context['event_detail_url'] = 'events_detail_embed' if self.site_embed else 'events_detail'
+        if self.site_internal or self.site_embed:
+            context['event_detail_url'] = 'events_detail_embed'
+        else:
+            context['event_detail_url'] = 'events_detail'
+
         if self.pw:
             context['pw'] = self.pw
 

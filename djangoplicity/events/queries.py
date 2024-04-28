@@ -208,14 +208,19 @@ class AllEventsQuery(AllPublicQuery):
                     if city and city != 'all':
                         qs = qs.filter(location__city=city)
 
-        if type and type != 'all':
+        try:
+            type.remove('ALL')
+        except ValueError:
+            pass
+
+        if type:
             qs = qs.filter(type__in=type)
         if series and series != 'all':
             qs = qs.filter(series__slug=series)
 
         if audience:
             qs = qs.filter(audience__in=audience)
-        elif audience_type:
+        elif audience_type and audience_type != 'all':
             qs = qs.filter(audience=audience_type)
 
         if period:

@@ -110,7 +110,7 @@ class CalendarView(ListView):
 
         month = int(self.request.GET.get('month', today.month))
         online = self.request.GET.get('online', 'false') == 'true'
-
+        search = self.request.GET.get('search', '')
         # Params with All default option
         audience_type = self.request.GET.get('audienceType', 'all')
         access = self.request.GET.get('accessType', 'all')
@@ -160,11 +160,21 @@ class CalendarView(ListView):
             queryset = queryset.filter(location__name__icontains='online')
         else:
             if country != 'all':
-                queryset = queryset.filter(location__country=country)
+                queryset = queryset.filter(location__country__iexact=country)
                 if state != 'all':
-                    queryset = queryset.update(location__state=state)
+                    queryset = queryset.filter(location__state__iexact=state)
                     if city != 'all':
-                        queryset = queryset.filter(location__city=city)
+                        queryset = queryset.filter(location__city__iexact=city)
+
+        if search:
+            queryset = queryset.filter(
+                Q(location__name__icontains=search) |
+                Q(series__name__icontains=search) |
+                Q(title__icontains=search) |
+                Q(speaker__icontains=search) |
+                Q(affiliation__icontains=search) |
+                Q(abstract__icontains=search)
+            )
 
         if self.period == 'past':
             queryset = queryset.order_by('-start_date')

@@ -202,11 +202,11 @@ class AllEventsQuery(AllPublicQuery):
             qs = qs.filter(location__name__icontains='online')
         else:
             if country and country != 'all':
-                qs = qs.filter(location__country=country)
+                qs = qs.filter(location__country__iexact=country)
                 if state and state != 'all':
-                    qs = qs.filter(location__state=state)
+                    qs = qs.filter(location__state__iexact=state)
                     if city and city != 'all':
-                        qs = qs.filter(location__city=city)
+                        qs = qs.filter(location__city__iexact=city)
 
         try:
             type.remove('ALL')

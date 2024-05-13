@@ -14,6 +14,7 @@ def get_extra_params(request):
             extra_params += "%s=%s" % (param, request.GET.get(param))
     return extra_params
 
+
 def get_all_params(current_params, extra_params):
     all = ''
     # add current params
@@ -25,6 +26,7 @@ def get_all_params(current_params, extra_params):
     else:
         all += '?%s' % extra_params if extra_params else ''
     return all
+
 
 @register.inclusion_tag('audience_options.html', takes_context=True)
 def show_event_audiences(context):
@@ -59,6 +61,7 @@ def show_event_audiences(context):
         'extra_params': extra_params
         }
 
+
 @register.inclusion_tag('event_type_options.html', takes_context=True)
 def show_event_types(context):
     choices = EVENT_TYPES
@@ -92,6 +95,7 @@ def show_event_types(context):
         'extra_params': extra_params
         }
 
+
 @register.inclusion_tag('upcoming_options.html', takes_context=True)
 def show_event_upcoming_options(context):
     choices = [
@@ -103,7 +107,6 @@ def show_event_upcoming_options(context):
     # Get current url params
     audiences = context.request.GET.getlist('audience', [])
     event_types = context.request.GET.getlist('type', [])
-
 
     current_params = ''
     for audience in audiences:
@@ -133,11 +136,13 @@ def show_event_upcoming_options(context):
         'extra_params': extra_params,
         }
 
+
 @register.inclusion_tag('calendar_options.html', takes_context=True)
 def show_calendars(context):
     audiences = context.request.GET.getlist('audience', ['P'])
     calendars = Calendar.objects.filter(audience__in = audiences)
     return { 'calendars': calendars }
+
 
 def is_educational_event(event_type):
     if not isinstance(event_type, str):
@@ -146,6 +151,7 @@ def is_educational_event(event_type):
         if key == event_type:
             return True
     return False
+
 
 def request_contain_all_educational_events(event_types):
     """
@@ -157,6 +163,7 @@ def request_contain_all_educational_events(event_types):
         if key not in event_types:
             return False
     return True
+
 
 def cast_event_title(title):
     # not append events word

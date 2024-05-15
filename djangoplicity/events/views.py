@@ -96,7 +96,7 @@ class CalendarView(ListView):
 
         self.site_embed = self.request.GET.get('siteEmbed', 'false') == 'true'
         self.site_internal = self.request.GET.get('siteInternal', 'false') == 'true'
-        self.period = self.request.GET.get('period', 'upcoming')
+        self.period = self.request.GET.get('period', 'default')
         self.year = int(self.request.GET.get('year', today.year))
 
         if self.site_internal:
@@ -123,23 +123,6 @@ class CalendarView(ListView):
 
         # First day of the month
         self.first_day_of_month = datetime(self.year, month, 1)
-
-        # Get the current filters, month and year, ect. You can modify this to allow users to change the month/year.
-        if self.period == 'past':
-            queryset = queryset.filter(
-                Q(end_date__lte=today, end_date__isnull=False) |
-                Q(start_date__lte=today, end_date__isnull=True)
-            )
-        elif self.period == 'since':
-            queryset = queryset.filter(
-                Q(end_date__gte=self.first_day_of_month) |
-                Q(start_date__gte=self.first_day_of_month)
-            )
-        else:
-            queryset = queryset.filter(
-                Q(end_date__gte=today, end_date__isnull=False) |
-                Q(start_date__gte=today, end_date__isnull=True)
-            )
 
         if event_type != 'all':
             queryset = queryset.filter(type=event_type)
@@ -175,6 +158,38 @@ class CalendarView(ListView):
                 Q(affiliation__icontains=search) |
                 Q(abstract__icontains=search)
             )
+
+        # Get the current filters, month and year, ect. You can modify this to allow users to change the month/year.
+        if self.period == 'upcoming':
+            queryset = queryset.filter(
+                Q(end_date__gte=today, end_date__isnull=False) |
+                Q(start_date__gte=today, end_date__isnull=True)
+            )
+        elif self.period == 'past':
+            queryset = queryset.filter(
+                Q(end_date__lte=today, end_date__isnull=False) |
+                Q(start_date__lte=today, end_date__isnull=True)
+            )
+        elif self.period == 'since':
+            queryset = queryset.filter(
+                Q(end_date__gte=self.first_day_of_month) |
+                Q(start_date__gte=self.first_day_of_month)
+            )
+        else:
+            upcoming_events = queryset.filter(
+                Q(end_date__gte=today, end_date__isnull=False) |
+                Q(start_date__gte=today, end_date__isnull=True)
+            )
+            # workaround if there are no future events send past events
+            if upcoming_events:
+                queryset = upcoming_events
+            else:
+                # if there are no future events send past events
+                self.period = 'past'
+                queryset = queryset.filter(
+                    Q(end_date__lte=today, end_date__isnull=False) |
+                    Q(start_date__lte=today, end_date__isnull=True)
+                )
 
         if self.period == 'past':
             queryset = queryset.order_by('-start_date')

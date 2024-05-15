@@ -175,7 +175,7 @@ class AllEventsQuery(AllPublicQuery):
         month = request.GET.get('month', None)
         video_only = 'video' in request.GET
 
-        period = request.GET.get('period', 'upcoming')
+        period = request.GET.get('period', 'default')
         access = request.GET.get('accessType', '')
         audience_type = request.GET.get('audienceType', '')
         time_of_day = request.GET.get('timeOfDay', None)
@@ -223,6 +223,17 @@ class AllEventsQuery(AllPublicQuery):
         elif audience_type and audience_type != 'all':
             qs = qs.filter(audience=audience_type)
 
+        if calendar and upcoming is None:
+            qs = qs.filter(
+                Q(end_date__gte=(now - timedelta(weeks=8)), end_date__isnull=False) |
+                Q(start_date__gte=(now - timedelta(weeks=8)), end_date__isnull=True)
+            )
+        if video_only:
+            qs = qs.exclude(video_url='')
+
+        if year and not month:
+            qs = qs.filter(start_date__year=year, start_date__lte=now)
+
         if period:
             if period == 'upcoming':
                 qs = qs.filter(
@@ -245,17 +256,19 @@ class AllEventsQuery(AllPublicQuery):
                     )
                 except (TypeError, ValueError):
                     pass
+            else:
+                upcoming_events = qs.filter(
+                    Q(end_date__gte=now, end_date__isnull=False) |
+                    Q(start_date__gte=now, end_date__isnull=True))
 
-        if calendar and upcoming is None:
-            qs = qs.filter(
-                Q(end_date__gte=(now - timedelta(weeks=8)), end_date__isnull=False) |
-                Q(start_date__gte=(now - timedelta(weeks=8)), end_date__isnull=True)
-            )
-        if video_only:
-            qs = qs.exclude(video_url='')
-
-        if year and not month:
-            qs = qs.filter(start_date__year=year, start_date__lte=now)
+                if upcoming_events:
+                    qs = upcoming_events
+                else:
+                    # workaround if there are no future events send past event
+                    period = 'past'
+                    qs = qs.filter(
+                        Q(end_date__lte=now, end_date__isnull=False) |
+                        Q(start_date__lte=now, end_date__isnull=True))
 
         if period == 'past':
             qs = qs.order_by('-start_date')

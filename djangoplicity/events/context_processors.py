@@ -23,13 +23,13 @@ def event_constants(request):
         state = location['state']
         city = location['city']
 
-        if country_code not in locations_data:
+        if country_code and country_code not in locations_data:
             locations_data[country_code] = {'name': country_name, 'states': {}}
 
-        if state and state not in locations_data[country_code]['states']:
+        if country_code and state and state not in locations_data[country_code]['states']:
             locations_data[country_code]['states'][state] = {'cities': []}
 
-        if city and city not in locations_data[country_code]['states'][state]['cities']:
+        if country_code and state and city and city not in locations_data[country_code]['states'][state]['cities']:
             locations_data[country_code]['states'][state]['cities'].append(city)
 
     return {
